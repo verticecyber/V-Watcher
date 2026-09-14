@@ -15,7 +15,7 @@ FINAL_IMPLEMENTATION_STATE:    pipeline-effective deterministic observer; neural
                                honest router; untested ViewModel; L2-proven, L3+ absent
 ```
 
-Stale-doc handling: banners added to `REAL_DEVICE_VALIDATION_REPORT.md` +
-`TRUTH_FIRST_VALIDATION_REPORT.md`; JSONs listed in SOT §16 (immutable in place).
-Product diff during phase: **zero** (`git status`: only `docs/`, `tools/petscan/`, trace harness test).
+Stale-doc handling: banners added to `docs/evidence/historical/REAL_DEVICE_VALIDATION_REPORT.md` +
+`docs/evidence/historical/TRUTH_FIRST_VALIDATION_REPORT.md`; JSONs listed in SOT §16 (immutable in place).
+Product diff during phase: **zero** (`git status`: only `docs/`, `tools/validation/petscan/`, trace harness test).
 Baseline frozen at SOT timestamp; any product change requires re-verification (§28: 8/8 met).

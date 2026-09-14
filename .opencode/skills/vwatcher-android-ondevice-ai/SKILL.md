@@ -138,7 +138,7 @@ Separate four columns of truth: `DOCUMENTED_CAPABILITY | DEVICE_CAPABILITY | ACT
 
 ## 12. Performance (numbers or it didn't happen)
 
-Measure `cold_start, warm_start, model_load, warmup, first_token/TTFT, time_to_complete, tok/s, p50/p95/p99, memory_peak, battery_impact_if_measurable`. Ban `fast/slow/low-memory` as conclusions. Nano: `warmup()` exists to amortize first inference — A/B with and without. LiteRT-LM: report backend (CPU/GPU/NPU) + MTP on/off alongside every number. Store raw runs in `PERFORMANCE_RESULTS.json`, summarize in matrix doc.
+Measure `cold_start, warm_start, model_load, warmup, first_token/TTFT, time_to_complete, tok/s, p50/p95/p99, memory_peak, battery_impact_if_measurable`. Ban `fast/slow/low-memory` as conclusions. Nano: `warmup()` exists to amortize first inference — A/B with and without. LiteRT-LM: report backend (CPU/GPU/NPU) + MTP on/off alongside every number. Store raw runs in `docs/evidence/validation/PERFORMANCE_RESULTS.json`, summarize in matrix doc.
 
 ## 13. Lifecycles (four clocks, not one)
 

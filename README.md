@@ -1,22 +1,68 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# V-Watcher
 
-# Run and deploy your AI Studio app
+V-Watcher is an Android application for local device health, behavioral monitoring,
+and defensive inspection. The application is designed around on-device processing:
+device observations remain local unless a future, explicitly documented feature says
+otherwise.
 
-This contains everything you need to run your app locally.
+## Project status
 
-View your app in AI Studio: https://ai.studio/apps/dd7e7469-63b2-4c2b-8f31-711db5e52b2f
+The repository is in active pre-release preparation for Google Play. The current
+release scope, known gaps, and evidence are maintained in
+[`docs/sot/V_WATCHER_SOT_UNIFIED.md`](docs/sot/V_WATCHER_SOT_UNIFIED.md).
+Release-specific gates and submission tasks are indexed in
+[`docs/release/PLAY_STORE_READINESS.md`](docs/release/PLAY_STORE_READINESS.md).
 
-## Run Locally
+## Requirements
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+- Android Studio with an Android SDK for compile/target API 36
+- JDK 11 or newer
+- A connected Android device or emulator for runtime validation
+- Git
 
+## Build and test
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
-7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.
+Open the repository in Android Studio, allow Gradle to synchronize, and run:
+
+```bash
+./gradlew testDebugUnitTest
+./gradlew assembleDebug
+```
+
+For a release build, configure signing through environment variables rather than
+committing credentials:
+
+```bash
+export KEYSTORE_PATH=/absolute/path/to/upload-key.jks
+export STORE_PASSWORD='your-store-password'
+export KEY_PASSWORD='your-key-password'
+./gradlew bundleRelease
+```
+
+The keystore and password values must remain outside the repository. See
+[`docs/release/RELEASE_BUILD.md`](docs/release/RELEASE_BUILD.md) before producing
+an artifact for Play Console.
+
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| `app/` | Android application source, resources, and tests |
+| `docs/sot/` | Current source of truth and reconciled product evidence |
+| `docs/release/` | Release, privacy, security, and Play Console readiness |
+| `docs/reference/` | Environment and supporting reference material |
+| `docs/evidence/validation/` | Machine-generated validation inputs and traces |
+| `docs/evidence/historical/` | Superseded validation reports |
+| `docs/archive/` | Historical plans and superseded research |
+| `tools/validation/` | Reproducible validation utilities |
+
+## Configuration
+
+Copy `.env.example` only when a local integration requires it. Do not commit
+`.env`, API keys, signing credentials, keystores, `local.properties`, APKs, or
+Android App Bundles.
+
+## Contributing
+
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a change. Security issues
+must follow [`SECURITY.md`](SECURITY.md).

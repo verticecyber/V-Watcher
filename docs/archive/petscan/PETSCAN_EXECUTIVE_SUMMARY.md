@@ -1,6 +1,6 @@
 # PETSCAN — Executive Summary (2026-09-12, L2 runtime evidence)
 
-Method: 4 parallel code probes (telemetry/sentinel/homeostasis, immune/bus/memory, reasoning/router/boundary, viewmodel/UI/tests) + static scans (`tools/petscan/static_scan.sh`) + live Robolectric trace (`app/src/test/.../petscan/PetScanTraceTest.kt`, kept as harness). No product behavior changed.
+Method: 4 parallel code probes (telemetry/sentinel/homeostasis, immune/bus/memory, reasoning/router/boundary, viewmodel/UI/tests) + static scans (`tools/validation/petscan/static_scan.sh`) + live Robolectric trace (`app/src/test/.../petscan/PetScanTraceTest.kt`, kept as harness). No product behavior changed.
 
 ## O que temos hoje?
 

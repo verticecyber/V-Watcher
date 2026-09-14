@@ -70,7 +70,7 @@ The perturbation procedure designed for physical device execution is:
 
 ### SECTION 5: IMMUTABLE END-TO-END CORRELATION TRACE
 
-Captured in `END_TO_END_IMMUNE_TRACE.jsonl`:
+Captured in `docs/evidence/validation/END_TO_END_IMMUNE_TRACE.jsonl`:
 ```jsonl
 {"observation_id":"obs_1789226100101_8a12f9","incident_id":"INC-20260912-001","correlation_id":"corr_89fa102b_e2a1","emitting_cell":"SENTINEL","receiving_cell":"PRR","event_type":"RAW_OBSERVATION_DISPATCH","evidence_refs":["ev_prov_battery_raw"],"resolution_state":"DETECTING"}
 {"observation_id":"obs_1789226100101_8a12f9","incident_id":"INC-20260912-001","correlation_id":"corr_89fa102b_e2a1","emitting_cell":"PRR","receiving_cell":"IMMUNE_BUS","event_type":"DANGER_PATTERN_DETECTED","evidence_refs":["ev_prr_therm_46c","ev_prr_ram_low"],"resolution_state":"INVESTIGATING"}
@@ -107,7 +107,7 @@ Captured in `END_TO_END_IMMUNE_TRACE.jsonl`:
 
 ### SECTION 8: ANOMALY RESPONSE LATENCY PROFILE
 
-Granular latencies measured under deterministic JVM baseline (see `PERFORMANCE_RESULTS.json`):
+Granular latencies measured under deterministic JVM baseline (see `docs/evidence/validation/PERFORMANCE_RESULTS.json`):
 * **T0 → T1 (Physical Perturbation to Telemetry Registration):** 10–25 ms (Android OS broadcast latency)
 * **T1 → T2 (Telemetry Observation by Sentinel):** 12–18 ms
 * **T2 → T3 (PRR Detection):** 2–5 ms

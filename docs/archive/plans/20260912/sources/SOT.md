@@ -162,8 +162,8 @@ usage caps 20/15 over 24 h; bus replay 20 / buffer 128.
 
 ## 16. Contradictions resolved (stale docs neutralized)
 
- Superseded → HISTORICAL: `REAL_DEVICE_VALIDATION_REPORT.md`, `TRUTH_FIRST_VALIDATION_REPORT.md`
-(banners added), `CLAIM_PROOF_MATRIX.json`, `MEMORY_VALIDATION.json`, `LIFECYCLE_VALIDATION.json`
+ Superseded → HISTORICAL: `docs/evidence/historical/REAL_DEVICE_VALIDATION_REPORT.md`, `docs/evidence/historical/TRUTH_FIRST_VALIDATION_REPORT.md`
+(banners added), `docs/evidence/validation/CLAIM_PROOF_MATRIX.json`, `docs/evidence/validation/MEMORY_VALIDATION.json`, `docs/evidence/validation/LIFECYCLE_VALIDATION.json`
 (JSONs immutable-in-place, listed here). Refined: homeostasis DISPLAY_ONLY → DISPLAY_AND_TRIAGE_LABEL.
 Retired method: `static_scan.sh` §1 (definition counts) superseded by targeted A/B greps.
 
@@ -185,7 +185,7 @@ export GRADLE_USER_HOME=/media/juan/DATA/.toolchains/gradle-home
 export ANDROID_HOME=/media/juan/DATA/.toolchains/android-sdk
 ./gradlew testDebugUnitTest   # 30/30 expected (incl. 3 PETSCAN traces)
 ./gradlew lintRelease         # 0 errors expected
-./tools/petscan/static_scan.sh
+./tools/validation/petscan/static_scan.sh
 ```
 
 Per-claim table: `docs/sot/V_WATCHER_EVIDENCE_INDEX.md`. Ceiling: L2 only; L3–L5, Nano/Gemma on

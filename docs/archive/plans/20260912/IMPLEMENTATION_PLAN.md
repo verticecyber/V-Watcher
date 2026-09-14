@@ -20,7 +20,7 @@ status_contract:
   status_mapping_ref: STATUS_MAPPING.yaml
   status_mapping_fingerprint: c4c0c029649c642710a99ad2f5b26ef1ac871613f1e1158468b9153122dcb434
   status_mapping_authority: referenced_file_only
-  status_mapping_parity_gate: python3 -B /home/juan/.config/opencode/skills/vertice-planning/scripts/validate_plan_records.py docs/plans/VWATCHER_IMPL_20260912/PLAN_RECORDS_MANIFEST.yaml
+  status_mapping_parity_gate: python3 -B /home/juan/.config/opencode/skills/vertice-planning/scripts/validate_plan_records.py docs/archive/plans/20260912/PLAN_RECORDS_MANIFEST.yaml
   unmapped_or_ambiguous_state: DECIDE
 plan_records:
   manifest: PLAN_RECORDS_MANIFEST.yaml
@@ -31,7 +31,7 @@ traceability_graph:
   plan_graph: PLAN_GRAPH.yaml
   graph_fingerprint: f88be9b10b0635a0fb7283fd5ca5bae5ed0d85d93dc61e596ee82b733091b036
   schema: vertice.plan_graph.v1
-  validator: python3 -B /home/juan/.config/opencode/skills/vertice-planning/scripts/validate_plan_graph.py docs/plans/VWATCHER_IMPL_20260912/PLAN_GRAPH.yaml
+  validator: python3 -B /home/juan/.config/opencode/skills/vertice-planning/scripts/validate_plan_graph.py docs/archive/plans/20260912/PLAN_GRAPH.yaml
 precision_contract:
   canonical_node_registry: PLAN_GRAPH.yaml::nodes
   canonical_edge_registry: PLAN_GRAPH.yaml::edges
@@ -201,7 +201,7 @@ phase:
   forbidden_effects: [NEURAL_MODEL_WIRING, NEW_DEPENDENCY, SCOPE_WIDENING]
   entry_gates: [T-ENTRY-SUITE]
   exit_gates: [T-EXIT-02]
-  rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-02
+  rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-02
   input_artifacts: [P-SOT]
   closure_artifacts: [A-02]
   claim_ceiling: intent launch semantics isReal semantics and backend mirror are truthful under L2
@@ -225,7 +225,7 @@ phase:
   forbidden_effects: [ACTUATOR_WIDENING, NEURAL_MODEL_WIRING, NEW_OS_CAPABILITY]
   entry_gates: [T-ENTRY-SUITE, T-EXIT-02]
   exit_gates: [T-EXIT-03]
-  rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-03
+  rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-03
   input_artifacts: [P-SOT]
   closure_artifacts: [A-03]
   claim_ceiling: macroState and regulatory outputs gate escalation under L2; no actuation claim
@@ -249,7 +249,7 @@ phase:
   forbidden_effects: [ARTIFICIAL_LINE_REDUCTION, BEHAVIOR_REGRESSION, NET_PRODUCTION_LINE_GROWTH, NEURAL_MODEL_WIRING]
   entry_gates: [T-ENTRY-SUITE, T-EXIT-03]
   exit_gates: [T-EXIT-04]
-  rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-04
+  rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-04
   input_artifacts: [P-SOT]
   closure_artifacts: [A-04]
   claim_ceiling: single decision path with single case authority under L2; no perf claim
@@ -273,7 +273,7 @@ phase:
   forbidden_effects: [NEURAL_MODEL_WIRING, NEW_NAVIGATION, NEW_SCREEN]
   entry_gates: [T-ENTRY-SUITE, T-EXIT-04]
   exit_gates: [T-EXIT-05]
-  rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-05
+  rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-05
   input_artifacts: [P-SOT]
   closure_artifacts: [A-05]
   claim_ceiling: every listed UI string is backend-bound or reworded under L2
@@ -419,4 +419,4 @@ Adopted verbatim as the closed evidence contract for this plan revision.
 | app/src/main/java/com/example/viewmodel/VWatcherViewModel.kt | production | 1218 | at most 1218 | 500 exceeded pre-plan; net-negative enforced | extract scoring and simulation siblings via DECIDE if growth required | T-EXIT-04 `wc -l` |
 | app/src/main/java/com/example/immune/BiomimeticImmuneSystem.kt | production | 356 | at most 400 | 500 | none | T-EXIT-04 |
 | app/src/main/java/com/example/reasoning/ResourceGuardrails.kt | production | 73 | at most 150 | 500 | none | T-EXIT-03 |
-| docs/plans/VWATCHER_IMPL_20260912/IMPLEMENTATION_PLAN.md | governed doc |Added at closure | below 1500 | 3000 | split canonical records before projections duplicate authority | validator |
+| docs/archive/plans/20260912/IMPLEMENTATION_PLAN.md | governed doc |Added at closure | below 1500 | 3000 | split canonical records before projections duplicate authority | validator |

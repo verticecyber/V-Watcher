@@ -102,8 +102,8 @@ L3–L5 absent; perf/battery unmeasured; no CI/tags; thresholds uncalibrated (fu
 
 ## 16. Known contradictions resolved
 
-Stale Room/SQLite claims in `REAL_DEVICE_VALIDATION_REPORT.md`, `TRUTH_FIRST_VALIDATION_REPORT.md`,
-`CLAIM_PROOF_MATRIX.json`, `MEMORY_VALIDATION.json`, `LIFECYCLE_VALIDATION.json` → HISTORICAL,
+Stale Room/SQLite claims in `docs/evidence/historical/REAL_DEVICE_VALIDATION_REPORT.md`, `docs/evidence/historical/TRUTH_FIRST_VALIDATION_REPORT.md`,
+`docs/evidence/validation/CLAIM_PROOF_MATRIX.json`, `docs/evidence/validation/MEMORY_VALIDATION.json`, `docs/evidence/validation/LIFECYCLE_VALIDATION.json` → HISTORICAL,
 superseded by this SOT (code: zero Room refs/disk IO). Banner added to the two MD files; JSONs
 immutable-in-place, listed here instead. Prior PETSCAN refinement: homeostasis DISPLAY_ONLY →
 DISPLAY_AND_TRIAGE_LABEL; static_scan §1 retired as orphan evidence.
@@ -116,7 +116,7 @@ G1–G20 (`PETSCAN_GAPS.md`) + **G21 write-only boundary flags** (B7: `isInferen
 ## 18. Evidence index (pointer)
 
 Full per-claim index: `docs/sot/V_WATCHER_EVIDENCE_INDEX.md`. Trace runs: 2026-09-12 ~15:35 (181 ms)
-and ~15:50 (158 ms), 3/3 green both. Static: `tools/petscan/`. Adversarial batteries: A1–A8, B1–B7
+and ~15:50 (158 ms), 3/3 green both. Static: `tools/validation/petscan/`. Adversarial batteries: A1–A8, B1–B7
 in `docs/sot/PETSCAN_RECONCILIATION.md`.
 
 ## 19. Claim ceiling

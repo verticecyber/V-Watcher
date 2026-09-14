@@ -348,7 +348,7 @@ nodes:
       - NEURAL_MODEL_WIRING
       - NEW_DEPENDENCY
       - SCOPE_WIDENING
-    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-02
+    rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-02
     claim_ceiling: intent launch semantics isReal semantics and backend mirror are truthful under L2
 
   - id: PH-03
@@ -366,7 +366,7 @@ nodes:
       - ACTUATOR_WIDENING
       - NEURAL_MODEL_WIRING
       - NEW_OS_CAPABILITY
-    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-03
+    rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-03
     claim_ceiling: macroState and regulatory outputs gate escalation under L2; no actuation claim
 
   - id: PH-04
@@ -385,7 +385,7 @@ nodes:
       - BEHAVIOR_REGRESSION
       - NET_PRODUCTION_LINE_GROWTH
       - NEURAL_MODEL_WIRING
-    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-04
+    rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-04
     claim_ceiling: single decision path with single case authority under L2; no perf claim
 
   - id: PH-05
@@ -403,7 +403,7 @@ nodes:
       - NEURAL_MODEL_WIRING
       - NEW_NAVIGATION
       - NEW_SCREEN
-    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-05
+    rollback_or_recovery: restore snapshot copies under docs/archive/plans/20260912/snapshots/PH-05
     claim_ceiling: every listed UI string is backend-bound or reworded under L2
 
   - id: PH-06
@@ -649,7 +649,7 @@ nodes:
   - id: A-06
     kind: ARTIFACT
     label: Device evidence notes
-    locator: docs/plans/VWATCHER_IMPL_20260912/evidence/DEVICE_NOTES.md
+    locator: docs/archive/plans/20260912/evidence/DEVICE_NOTES.md
     media_type: text/markdown
     retention: permanent
     state: PLANNED

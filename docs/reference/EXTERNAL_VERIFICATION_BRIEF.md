@@ -96,7 +96,7 @@ export ANDROID_HOME=/media/juan/DATA/.toolchains/android-sdk
 ./gradlew testDebugUnitTest        # esperado: 30/30, BUILD SUCCESSFUL
 ./gradlew lintRelease              # esperado: 0 errors
 ./gradlew bundleRelease            # requer KEYSTORE_PATH/STORE_PASSWORD/KEY_PASSWORD (alias `upload`)
-./tools/petscan/static_scan.sh     # scans estáticos reproduzíveis
+./tools/validation/petscan/static_scan.sh     # scans estáticos reproduzíveis
 ```
 
 Documentos-fonte (todos em `docs/`): `PETSCAN_EXECUTIVE_SUMMARY`,
