@@ -1,11 +1,11 @@
 # docs/ — índice documental
 
-> Autoridade corrente: [`sot/V_WATCHER_SOT_UNIFIED.md`](sot/V_WATCHER_SOT_UNIFIED.md).
+> Autoridade corrente: [`sot/V_WATCHER_SOURCE_OF_TRUTH.md`](sot/V_WATCHER_SOURCE_OF_TRUTH.md).
 > Todo o resto é apêndice, método ou histórico. Em conflito, o SOT vence.
 
 | Pasta | Conteúdo | Status |
 |---|---|---|
-| [`sot/`](sot/) | SOT unificado + reconciliação adversarial + matriz de thresholds + gap delta + índice de evidências + relatório da auditoria SOT | **AUTORIDADE CORRENTE** |
+| [`sot/`](sot/) | SOT canônico + matrizes de claims/componentes/provas + registro documental + consistência | **AUTORIDADE CORRENTE** |
 | [`release/`](release/) | Gate, matriz, pacote (SHA), remediação, build, permissões, privacidade, Data Safety, rede, SDKs/licenças, segurança, prontidão Play/Console | Evidência de release (corrente) |
 | [`../evidence/validation/`](../evidence/validation/) | Dados brutos e rastros de validação | Evidência reproduzível, não autoridade |
 | [`../evidence/historical/`](../evidence/historical/) | Relatórios de validação superseded | Histórico — não usar como estado atual |
