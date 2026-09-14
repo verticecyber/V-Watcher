@@ -1,0 +1,18 @@
+{
+  "audit_timestamp": "2026-09-14T12:30:00Z",
+  "environment": "Google AI Studio Cloud Container",
+  "os": "Linux 4.19.0-gvisor amd64",
+  "adb_path": "/opt/android/sdk/platform-tools/adb",
+  "adb_daemon_status": "RUNNING (tcp:5037)",
+  "adb_devices_attached": [],
+  "device_classification": "NONE_ATTACHED_TO_ADB",
+  "streaming_emulator_note": "AI Studio runs a browser-streamed Android emulator external to this build container. There is no direct adb shell/socket access from the container to the streaming emulator instance.",
+  "probes": {
+    "adb_devices_l": "List of devices attached\n",
+    "getprop_ro_product_model": "UNAVAILABLE (no adb target)",
+    "getprop_ro_product_manufacturer": "UNAVAILABLE (no adb target)",
+    "aicore_installed": false,
+    "gemma_weights_installed": false
+  },
+  "physical_hardware_claim": false
+}

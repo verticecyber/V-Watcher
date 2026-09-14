@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-09-14T12:30:00Z",
+  "toolchain": {
+    "java": "Temurin-21.0.12+8 (build 21.0.12+8-LTS)",
+    "javac": "21.0.12",
+    "gradle": "9.3.1",
+    "kotlin": "2.2.21 (build system) / 2.2.10 (project)",
+    "agp": "9.1.1",
+    "android_sdk_compile": 36,
+    "android_sdk_minor": 1,
+    "android_sdk_target": 36,
+    "android_sdk_min": 24
+  },
+  "git": {
+    "is_git_worktree": false,
+    "status": "No .git directory inside container workspace (imported repo)"
+  },
+  "build": {
+    "command": "gradle :app:assembleDebug",
+    "result": "EXIT 0 (SUCCESS)",
+    "duration_seconds": 2,
+    "apk_path": "app/build/outputs/apk/debug/app-debug.apk",
+    "apk_size_bytes": 17347499,
+    "apk_sha256": "9bd86f3605d3add8091936559c20641c08176cc7aa9682cd9e6bc91e16c0e578"
+  },
+  "tests": {
+    "command": "gradle :app:testDebugUnitTest",
+    "result": "EXIT 0 (SUCCESS)",
+    "total_tests": 63,
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "test_duration_seconds": 50,
+    "suites": [
+      { "name": "ExampleRobolectricTest", "tests": 1, "passed": 1 },
+      { "name": "ExampleUnitTest", "tests": 1, "passed": 1 },
+      { "name": "GreetingScreenshotTest", "tests": 1, "passed": 1 },
+      { "name": "HandoffFoundationTest", "tests": 5, "passed": 5 },
+      { "name": "ConsumptionTest", "tests": 8, "passed": 8 },
+      { "name": "FusionTest", "tests": 4, "passed": 4 },
+      { "name": "HonestyTest", "tests": 5, "passed": 5 },
+      { "name": "BiomimeticAdversarialImmuneTest", "tests": 9, "passed": 9 },
+      { "name": "BiomimeticImmuneSystemTest", "tests": 10, "passed": 10 },
+      { "name": "PetScanTraceTest", "tests": 3, "passed": 3 },
+      { "name": "UiBindingTest", "tests": 9, "passed": 9 },
+      { "name": "ViewModelHarnessTest", "tests": 7, "passed": 7 }
+    ]
+  }
+}

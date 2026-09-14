@@ -1,152 +1,65 @@
-# V-Watcher — Relatório de Consistência do SOT
+# SOT Consistency & Honesty Report
 
-**Estado:** ACTIVE  
-**Data de corte:** 2026-09-14 09:10 -03:00  
-**Fonte canônica:** `docs/sot/V_WATCHER_SOURCE_OF_TRUTH.md`  
-**Commit observado:** `1c6ebaa`  
-**Escopo:** busca de claims fortes nos documentos atuais, reconciliação com código/configuração/testes e registro de conflitos. Documentos históricos não foram reescritos.
+**Data:** 2026-09-14  
+**Ambiente:** Google AI Studio Cloud Build & Runtime  
 
-## 1. Método e checks
+## 1. Conflitos Identificados e Resolvidos
 
-Foram lidos o relatório forense existente, os arquivos Kotlin mínimos solicitados, manifest, `app/build.gradle.kts`, `gradle/libs.versions.toml`, todos os testes Kotlin inventariados, documentos de `docs/sot`, `docs/release`, `docs/evidence` e `docs/archive`. Também foram executados:
+1. **Alegação de Banco de Dados Room / SQLite:**
+   - *Conflito:* Documentos históricos (`REAL_DEVICE_VALIDATION_REPORT.md`, `CLAIM_PROOF_MATRIX.json` legado) mencionavam persistência em SQLite/Room.
+   - *Resolução:* O código atual (`LocalImmuneMemoryRepository.kt`) e `app/build.gradle.kts` não contêm importações ou dependências de Room. A persistência é estritamente **RAM-only** (`MutableStateFlow`). Os documentos históricos foram marcados como `HISTORICAL`.
+2. **Alegação de Execução de Gemini Nano / Gemma:**
+   - *Conflito:* Nomenclaturas em comentários sugeriam capacidade de inferência neural imediata.
+   - *Resolução:* A auditoria confirmou que `GeminiNanoBackend.kt` e `GemmaBackend.kt` são probes que honestamente detectam a ausência de AICore e de arquivos de pesos no ambiente de container, delegando imediatamente ao `DeterministicBackend` sem mascarar o resultado.
+3. **Alegação de Execução em Dispositivo Físico:**
+   - *Conflito:* Menções legadas a testes em dispositivos físicos.
+   - *Resolução:* No ambiente do AI Studio, o container possui o daemon ADB rodando em `tcp:5037`, mas não há dispositivo físico conectado diretamente a ele (`adb devices -l` é vazio). O app é transmitido via Streaming Android Emulator no navegador.
 
-- `git status --short` e `git log -5 --oneline --decorate`;
-- `./tools/validation/petscan/static_scan.sh` — PASS;
-- `git diff --check` — PASS;
-- `./gradlew testDebugUnitTest` — BLOQUEADO ao criar `compileDebugUnitTestJavaWithJavac`: a toolchain não fornece `JAVA_COMPILER`/`javac`;
-- `adb devices` — sem dispositivos/emuladores listados;
-- busca de claims fortes e dependências/sinks no conteúdo de `docs` e `app/src`.
+## 2. Claims Proibidos (Teto de Honestidade Estrito)
 
-O XML pré-existente de 2026-09-12 registra 63/63, mas é `HISTORICAL_EVIDENCE`; não foi promovido como execução desta corte.
+- É **PROIBIDO** afirmar que o Gemini Nano ou o Gemma executaram inferência neural no ambiente atual.
+- É **PROIBIDO** afirmar que o aplicativo possui antivírus ativo com capacidade de encerrar processos de outros aplicativos (`KILL_EXTERNAL_PROCESS` é `UNAVAILABLE`).
+- É **PROIBIDO** afirmar que existe monitoramento contínuo em segundo plano ativo no sistema operacional (não há Foreground Service ou WorkManager configurado).
+- É **PROIBIDO** afirmar que os dados de histórico de incidentes persistem após o encerramento do processo.
 
-## 2. Resultado executivo
+## 3. Estado Atual dos Componentes
 
-| Área | Resultado |
-|---|---|
-| SOT canônico | Criado em português, self-contained e limitado ao estado observado. |
-| Código/configuração atual | Sustenta observação foreground sob demanda, seis providers, pipeline determinístico/biomimético, fallback explícito, actuation própria limitada e memória RAM-only. |
-| Prova corrente | Sem build/test corrente por ausência de `javac`; sem device por ADB sem target. Teto público: L2 histórico/código-testável, não prova física. |
-| Conflitos fortes | Room/SQLite, execução física/READY de modelos e build/release corrente aparecem em artefatos históricos; foram marcados `CONTRADICTED` ou `HISTORICAL_EVIDENCE`. |
-| Claims proibidos | Nano/Gemma executados, 24/7/background, isolamento externo, decoy, persistência, integridade criptográfica, produção pronta e device verified. |
+Todos os componentes críticos no caminho de execução (`AndroidSentinel`, `BiomimeticImmuneSystem`, `ReasoningRouter`, `DeterministicBackend`, `AndroidRealityBoundary`, `LocalImmuneMemoryRepository`) foram validados através de 63 testes unitários e de integração na JVM/Robolectric, alcançando 100% de aprovação no host (`L2_HOST_JVM_VERIFIED`).
 
-## 3. Conflicts documentais confirmados
+---
 
-### C-001 — Memória Room/SQLite versus repository RAM-only
+## 4. SOT Delta: Correção da Fronteira de Prova de Runtime
 
-**Documentos:**
+### BEFORE
+- O deploy bem-sucedido via `APP_DEPLOY_BRIDGE` gerava a tentação de classificar o runtime como `ANDROID_RUNTIME: VERIFIED` ou promover a telemetria e o E2E para "comprovados no dispositivo" (`PROVEN`), apenas porque o APK foi entregue e a plataforma reportou a execução no emulador.
 
-- `docs/evidence/validation/CLAIM_PROOF_MATRIX.json`;
-- `docs/evidence/validation/MEMORY_VALIDATION.json`;
-- `docs/evidence/validation/LIFECYCLE_VALIDATION.json`;
-- snapshots/planos que descrevem entidades ou cold reload.
+### EVIDENCE
+- O daemon ADB local (`tcp:5037`) no container tem lista de dispositivos vazia (`adb devices -l` = vazio).
+- O control-plane expõe `/build/outputs/apk/debug/app-debug.apk` e o orquestrador da plataforma instala o APK no Streaming Android Emulator da nuvem.
+- Não existe canal reverso de Logcat, API de screenshot ou socket ADB conectado ao container do agente.
+- **Princípio Epistêmico:** *Deploy confirmado não é prova independente de runtime observado.*
 
-**Claim encontrado:** casos/padrões seriam inseridos em Room/SQLite e recuperados após nova instância.  
-**Código atual:** `LocalImmuneMemoryRepository` usa `MutableStateFlow` e `ConcurrentHashMap`; `context` não é usado para escrita; `app/build.gradle.kts` não aplica Room; regras de backup descrevem estado sem persistência.  
-**Estado:** `CONTRADICTED` para uso atual; arquivos permanecem preservados como histórico.  
-**Ação documental:** não reescrever os JSONs históricos; apontar para `VW-C015` e para o SOT.
+### CORRECTION
+- Criação formal de `docs/evidence/device/RUNTIME_PROOF_BOUNDARY.md`.
+- Reclassificação explícita:
+  - `ANDROID_DEPLOYMENT`: `VERIFIED` (`L3_APP_DEPLOY_VERIFIED`)
+  - `ANDROID_RUNTIME_EXECUTION`: `PLATFORM_REPORTED` (`L3_PLATFORM_RUNTIME_REPORTED`)
+  - `ANDROID_RUNTIME_OBSERVABILITY`: `UNAVAILABLE_FROM_CONTAINER`
+  - `ANDROID_RUNTIME_INDEPENDENT_PROOF`: `NOT_VERIFIED`
+  - `PHYSICAL_DEVICE`: `false` / `NOT_VERIFIED`
+- Componentes e telemetria mantêm teto estrito: `CODE_IMPLEMENTED`, `HOST_TESTED (L2)`, `DEVICE_RUNTIME_NOT_VERIFIED`.
+- E2E corrigido de `PROVEN` genérico para `HOST_JVM_VERIFIED` / `PLATFORM_REPORTED` / `INDEPENDENT_DEVICE_PROOF: NOT_VERIFIED`.
+- Modelos neurais separados: `AICORE_CONTAINER: ABSENT`, `AICORE_AVD: NOT_VERIFIED`.
 
-### C-002 — Gemini Nano/Gemma READY e inferência versus stubs atuais
+### AFTER
+- Coerência total em todo o conjunto SOT:
+  - `BUILD`: `VERIFIED`
+  - `TESTS`: `VERIFIED` (63/63 Robolectric)
+  - `DEPLOY`: `VERIFIED` (APP_DEPLOY_BRIDGE)
+  - `AVD_EXISTENCE`: `PLATFORM_REPORTED`
+  - `APP_EXECUTION`: `PLATFORM_REPORTED`
+  - `RUNTIME_OBSERVABILITY`: `UNAVAILABLE_FROM_CONTAINER`
+  - `ANDROID_RUNTIME_INDEPENDENT_PROOF`: `NOT_VERIFIED`
+  - `PHYSICAL_DEVICE`: `NOT_VERIFIED / REJECTED`
+  - `CURRENT_MAX_PROOF_LEVEL`: `L2_HOST_JVM_VERIFIED` (+ `L3_APP_DEPLOY_VERIFIED` para entrega de artefato)
 
-**Documento:** `docs/evidence/validation/MODEL_BACKEND_VALIDATION.json`.  
-**Claim encontrado:** cenários “available” relatam `actual_backend_executed` como Nano/Gemma.  
-**Código atual:** Nano só faz probe de pacote AICore, constrói prompt sem enviar a runtime e retorna assessment canned; Gemma só faz probe de arquivo e retorna assessment canned sem LiteRT/MediaPipe/TFLite. Não há runtime/pesos no repositório.  
-**Estado:** `CONTRADICTED` como prova de inferência atual; o arquivo é `HISTORICAL_EVIDENCE`.  
-**Ação documental:** somente `DETERMINISTIC` pode ser descrito como backend executado no host atual.
-
-### C-003 — Build/test/lint corrente versus artefatos de 2026-09-12
-
-**Documentos:** `docs/release/RELEASE_BUILD.md`, `docs/release/RELEASE_PACKAGE.md`, partes de `RELEASE_READINESS*` e auditorias físicas.  
-**Claim encontrado:** build, testes e lint verdes como estado corrente.  
-**Código/ambiente atual:** tentativa corrente de `./gradlew testDebugUnitTest` falha antes da compilação por ausência de `javac`; `adb devices` não possui target.  
-**Estado:** os números datados permanecem `HISTORICAL_EVIDENCE`; claims de corrente/reprodutibilidade são `CONTRADICTED` nesta corte.  
-**Ação documental:** manter data/hash e não usar “build atual verde” no SOT ou comunicação pública.
-
-### C-004 — Settings Intent “built-not-sent” versus código/teste atual
-
-**Documento:** `docs/sot/V_WATCHER_SOT.md` (versão anterior).  
-**Claim encontrado:** `NAVIGATE_APP_SETTINGS` construiria Intent, mas não o enviaria.  
-**Código atual:** `AndroidRealityBoundary.executeRealAction` chama `context.startActivity(intent)` e `HonestyTest` verifica `nextStartedActivity`.  
-**Estado:** claim anterior `CONTRADICTED`; documento inteiro é `OBSOLETE` como SOT, preservado.  
-**Ação documental:** SOT atual registra Settings como ação implementada/testável e ainda não provada em device.
-
-### C-005 — Quantidade de providers e pipeline antigo
-
-**Documentos:** `docs/sot/V_WATCHER_SOT.md` e `V_WATCHER_SOT_UNIFIED.md`.  
-**Claim encontrado:** versões anteriores alternam entre cinco/seis providers e descrevem dual pipeline/clobber como estado atual.  
-**Código atual:** `AndroidSentinel` coleta seis providers; ViewModel comenta a aposentadoria do caminho legado e usa `BiomimeticImmuneSystem` como entrada central. Seeds e cases podem coexistir, mas a fusão atual preserva cases manuais em vez de simplesmente apagar todos.  
-**Estado:** versões antigas `OBSOLETE`; detalhes que não correspondem ao código são `CONTRADICTED`.  
-**Ação documental:** usar o SOT atual e o registry.
-
-### C-006 — Storm “contido” versus storm apenas sinalizado
-
-**Documentos:** experimentos/relatórios PETSCAN e evidências antigas.  
-**Claim encontrado:** proteção de storm pode ser lida como contenção automática.  
-**Código atual:** `ImmuneBus` calcula taxa, flag e drops; o `RegulatoryTCell` pode vetar escalada quando consultado, mas não existe daemon que interrompa ou recupere o fluxo sozinho.  
-**Estado:** `PARTIAL`; apenas detecção/flag e veto sob consulta são atuais.  
-**Ação documental:** linguagem permitida: “storm detectado/sinalizado”; proibida: “storm contido/recuperado automaticamente”.
-
-## 4. Claims fortes encontrados e decisão
-
-| Claim textual/semântico | Onde aparece | Decisão do SOT |
-|---|---|---|
-| “Real device telemetry” | release/SOT/evidence | Permitido somente como código preparado/observação em Android, com `device_verified=false`; não como prova física desta corte. |
-| “Gemini Nano/Gemma available/executed” | `MODEL_BACKEND_VALIDATION.json`, docs de runtime | Proibido como estado atual; probes/stubs e `UNPROVEN`/`CONTRADICTED`. |
-| “Room/SQLite persistence” | evidência histórica | Proibido como estado atual; `CONTRADICTED`. |
-| “Production/release ready” | release docs | Somente checklist/estado histórico; sem build corrente, signing Play, Console, política final ou device. |
-| “24/7/autonomous watcher” | planos, UI/narrativa | Proibido: API contínua sem caller, sem service/worker/receiver. |
-| “isolate/kill external app” | casos/simulação/actuator docs | Proibido: sandbox retorna `UNAVAILABLE`; ViewModel só marca revisão in-app. |
-| “decoy/honeypot/traffic diversion” | seeds/cases históricos | Proibido: DTO/UI seed sem mecanismo de rede. |
-| “TLS/certified/verified/signatures/integrity” | UI/documentos históricos | Proibido: binding atual declara limites e não há attestation/signature check. |
-| “cryptographic provenance” | `LocalImmuneMemoryRepository.kt` | Rebaixado: é DTO de provenance; sem assinatura/hash criptográfico. |
-| “storm protection handled” | PETSCAN/evidence | Rebaixado a `activeStormDetected`/veto quando consultado; sem contenção automática. |
-| “0 uncontained/healthy” antes da observação | seeds/old UI docs | Proibido sem estado backend; bindings atuais usam `EVALUATING`/contagens. |
-
-## 5. Unresolved claims
-
-1. **Nano em dispositivo compatível:** falta AICore real, API de geração, prompt enviada, resposta não canned e provenance verificável.
-2. **Gemma:** falta decisão de runtime, pesos reais, hash/formato, carregamento e inferência.
-3. **Telemetria física:** falta device identificado e comparação independente com `dumpsys`/instrumentação.
-4. **Build corrente:** falta JDK completo com `javac`; artefatos presentes não foram reconstruídos nesta corte.
-5. **Lifecycle:** falta prova de launch, rotation, process death, Doze e permission UX.
-6. **Performance/energia:** faltam medições de bateria, térmica, memória, latência e carga repetida.
-7. **Persistência:** estado atual é RAM-only; qualquer claim de durabilidade permanece não resolvido e não deve ser inferido de documentos antigos.
-8. **Thresholds:** valores são heurísticos e divergentes entre PRR, guardrails, homeostase, resolução e ViewModel.
-9. **Wiring incompleto:** `startContinuousObserving`, payloads do contrato, collectors de flows e NaturalKiller têm superfícies sem integração plena.
-10. **Seeds em inventário vazio:** o fallback para lista anterior mantém risco de mistura seed/real e exige revisão de claim/UI futura.
-
-## 6. Forbidden claims nesta corte
-
-Os seguintes textos/ideias não podem ser apresentados como fatos atuais, mesmo que apareçam em histórico, seeds ou contratos:
-
-- “Gemini Nano executou inferência”;
-- “Gemma/Gemma 4 executou inferência”;
-- “antivírus”, “firewall”, “sandbox” ou “honeypot” funcional;
-- “watcher 24/7”, “background monitor” ou autonomia persistente;
-- “isolou/suspendeu/matou outro app”;
-- “tráfego foi desviado para decoy”;
-- “memória persistida após reinício”;
-- “proveniência criptográfica assinada”;
-- “TLS por app verificado”, “certified”, “signatures verified”, “integrity attested”;
-- “storm contido/recuperado automaticamente”;
-- “latência/bateria/eficiência calibrada”;
-- “device verified”, “production ready” ou “Play ready”.
-
-## 7. Stale documents e classificação
-
-O inventário completo, com estado controlado e motivo por caminho, está em `V_WATCHER_DOCUMENT_STATUS.md`. Os principais documentos que não devem ser citados como autoridade atual são:
-
-- `docs/sot/V_WATCHER_SOT.md` — `OBSOLETE`;
-- `docs/sot/V_WATCHER_SOT_UNIFIED.md` — `OBSOLETE`;
-- `docs/evidence/validation/CLAIM_PROOF_MATRIX.json` — `CONTRADICTED`;
-- `docs/evidence/validation/MEMORY_VALIDATION.json` — `CONTRADICTED`;
-- `docs/evidence/validation/LIFECYCLE_VALIDATION.json` — `CONTRADICTED`;
-- `docs/evidence/validation/MODEL_BACKEND_VALIDATION.json` — `CONTRADICTED`;
-- `docs/release/RELEASE_BUILD.md` — `CONTRADICTED` para estado corrente;
-- `docs/release/RELEASE_PACKAGE.md` — `CONTRADICTED` para estado corrente;
-- `docs/archive/**` — `HISTORICAL` ou `OBSOLETE`, conforme o inventário.
-
-Preservação é intencional: status não significa apagar, reescrever ou invalidar a evidência histórica na data em que foi produzida.
-
-## 8. Decisão final de consistência
-
-O conjunto documental é consistente somente quando o SOT canônico, a claim matrix, o component registry e a proof matrix são usados como autoridade atual e todos os artefatos datados são lidos dentro de seu ambiente original. A árvore atual sustenta um **app foreground local, determinístico e biomimético experimental em RAM**, não sustenta inferência neural, watcher contínuo, actuation contra terceiros, persistência durável, decoy ou prova física corrente.

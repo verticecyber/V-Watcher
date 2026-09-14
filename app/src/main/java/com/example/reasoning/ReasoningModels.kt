@@ -20,7 +20,8 @@ enum class RecommendedAction(val displayName: String) {
   INVESTIGATE("Investigate"),
   ISOLATE("Isolate"),
   BLOCK("Block"),
-  NO_ACTION("No Action")
+  NO_ACTION("No Action"),
+  THROTTLE_INTERNAL_INFERENCE("Throttle Internal Inference")
 }
 
 data class Assessment(
@@ -70,3 +71,15 @@ sealed class ReasoningResult {
   data class Unavailable(val message: String, val fallbackAssessment: Assessment) : ReasoningResult()
   data class Failed(val error: Throwable, val fallbackAssessment: Assessment) : ReasoningResult()
 }
+
+class ModelOutputValidationException(
+  message: String,
+  val rawOutput: String? = null,
+  cause: Throwable? = null
+) : IllegalArgumentException(message, cause)
+
+class ModelLoadException(
+  message: String,
+  cause: Throwable? = null
+) : IllegalStateException(message, cause)
+

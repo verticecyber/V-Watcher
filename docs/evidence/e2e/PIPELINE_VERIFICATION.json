@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-09-14T12:30:00Z",
+  "pipeline_verification": {
+    "telemetry_ingress": {
+      "method": "AndroidSentinel.observeNow()",
+      "providers_evaluated": [
+        { "name": "BatteryProvider", "status": "VERIFIED_FAIL_CLOSED", "provenance": "ProviderProvenance" },
+        { "name": "DeviceResourceProvider", "status": "VERIFIED_REAL_MEMORY", "provenance": "ProviderProvenance" },
+        { "name": "NetworkTelemetryProvider", "status": "VERIFIED_CONNECTIVITY_MANAGER", "provenance": "ProviderProvenance" },
+        { "name": "AppInventoryProvider", "status": "VERIFIED_PACKAGE_MANAGER", "provenance": "ProviderProvenance" },
+        { "name": "AppUsageProvider", "status": "VERIFIED_PERMISSION_GATED", "provenance": "ProviderProvenance" },
+        { "name": "SystemStateProvider", "status": "VERIFIED_BUILD_PROPS", "provenance": "ProviderProvenance" }
+      ],
+      "continuous_mode": "IMPLEMENTED_NOT_INTEGRATED"
+    },
+    "immune_orchestration": {
+      "entry": "BiomimeticImmuneSystem.processObservation()",
+      "cells": [
+        "SentinelCell", "PatternRecognitionCell", "RegulatoryTCell",
+        "NeutrophilCell", "BCell", "THelperCoordinatorCell",
+        "DendriticCell", "CytotoxicEffectorCell", "MacrophageCell",
+        "ResolutionCell", "LocalImmuneMemoryRepository", "HomeostasisEngine"
+      ],
+      "bus_storm_detector": "VERIFIED (detects >30 msg/s, raises storm flag)",
+      "guardrails": "VERIFIED (battery < 15%, memory > 92%, cooldown 2.5s, homeostasis stress)",
+      "homeostasis_macro_states": [
+        "HOMEOSTATIC", "WATCH", "STRESSED", "DEGRADED", "ACTIVE_DEFENSE", "UNKNOWN"
+      ]
+    },
+    "actuation_reality_boundary": {
+      "class": "AndroidRealityBoundary",
+      "supported_actions": {
+        "THROTTLE_INTERNAL_INFERENCE": "EXECUTED (Internal flag)",
+        "ISOLATE_INTERNAL_SUBSYSTEM": "EXECUTED (Internal set)",
+        "RECLAIM_INTERNAL_CACHE": "EXECUTED (Deletes own vwatcher_temp_* cache files & calls GC)",
+        "NAVIGATE_APP_SETTINGS": "EXECUTED (Launches ACTION_APPLICATION_DETAILS_SETTINGS Intent)",
+        "RESET_SUBSYSTEM_ISOLATION": "EXECUTED (Clears internal set & reset flags)"
+      },
+      "refused_actions": {
+        "KILL_EXTERNAL_PROCESS": "UNAVAILABLE (Android sandbox constraint verified)",
+        "UNKNOWN_ACTION": "DENIED (Platform contract enforcement)"
+      }
+    },
+    "memory_persistence": {
+      "class": "LocalImmuneMemoryRepository",
+      "storage_type": "RAM-only StateFlow + ConcurrentHashMap",
+      "gates": {
+        "reject_synthetic": "VERIFIED",
+        "reject_incomplete": "VERIFIED",
+        "reject_low_confidence": "VERIFIED (< 80% rejected)",
+        "debounce_duplicate": "VERIFIED (30s window)",
+        "reject_error_telemetry": "VERIFIED"
+      },
+      "durable_persistence": "PLANNED (No disk I/O, Room, SQLite, or DataStore)"
+    }
+  }
+}

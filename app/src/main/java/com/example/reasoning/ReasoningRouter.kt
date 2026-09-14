@@ -80,9 +80,11 @@ class ReasoningRouter(
 
     // Fallback: Neither neural model is available
     val fallbackReason = when {
-      geminiNanoBackend.state.value != ModelReadiness.READY && preferred == geminiNanoBackend.backendType ->
+      preferred == geminiNanoBackend.backendType && geminiNanoBackend.state.value != ModelReadiness.READY ->
         FallbackReason.GEMINI_NANO_UNAVAILABLE
-      gemmaBackend.state.value != ModelReadiness.READY && preferred == gemmaBackend.backendType ->
+      preferred == gemmaBackend.backendType && gemmaBackend.state.value == ModelReadiness.ERROR ->
+        FallbackReason.MODEL_LOAD_ERROR
+      preferred == gemmaBackend.backendType && gemmaBackend.state.value != ModelReadiness.READY ->
         FallbackReason.GEMMA_UNAVAILABLE
       geminiNanoBackend.state.value != ModelReadiness.READY ->
         FallbackReason.GEMINI_NANO_UNAVAILABLE
@@ -149,8 +151,28 @@ class ReasoningRouter(
     }
 
     try {
-      val result = withTimeoutOrNull(request.timeoutMs) {
-        candidateBackend.execute(request)
+      val result = try {
+        withTimeoutOrNull(request.timeoutMs) {
+          candidateBackend.execute(request)
+        }
+      } catch (e: Exception) {
+        guardrails.markExecutionCompleted()
+        lastFallbackReason = FallbackReason.MODEL_EXECUTION_ERROR
+        val deterministicResult = deterministicBackend.execute(request)
+        return ReasoningResponse(
+          requestId = request.requestId,
+          correlationId = request.correlationId,
+          timestamp = System.currentTimeMillis(),
+          selectedBackend = candidateBackend.backendType,
+          actualBackendUsed = deterministicBackend.backendType,
+          executionMode = "deterministic",
+          executionStatus = ExecutionStatus.FAILED,
+          fallbackReason = FallbackReason.MODEL_EXECUTION_ERROR,
+          assessment = deterministicResult.assessment,
+          latencyMs = 0L,
+          provenance = deterministicResult.provenance,
+          errorMessage = e.message ?: "Unhandled backend exception"
+        )
       }
 
       guardrails.markExecutionCompleted()
@@ -177,7 +199,14 @@ class ReasoningRouter(
 
       if (!result.success) {
         // Model failure
-        lastFallbackReason = FallbackReason.MODEL_INITIALIZATION_FAILED
+        val fallbackReason = when {
+          result.error is ModelOutputValidationException -> FallbackReason.MODEL_OUTPUT_INVALID
+          result.error is ModelLoadException || result.error?.message?.contains("load", ignoreCase = true) == true -> FallbackReason.MODEL_LOAD_ERROR
+          result.error is IllegalStateException && result.error.message?.contains("unavailable", ignoreCase = true) == true ->
+            if (candidateBackend.backendType == geminiNanoBackend.backendType) FallbackReason.GEMINI_NANO_UNAVAILABLE else FallbackReason.GEMMA_UNAVAILABLE
+          else -> FallbackReason.MODEL_EXECUTION_ERROR
+        }
+        lastFallbackReason = fallbackReason
         val deterministicResult = deterministicBackend.execute(request)
         return ReasoningResponse(
           requestId = request.requestId,
@@ -187,7 +216,7 @@ class ReasoningRouter(
           actualBackendUsed = deterministicBackend.backendType,
           executionMode = "deterministic",
           executionStatus = ExecutionStatus.FAILED,
-          fallbackReason = FallbackReason.MODEL_INITIALIZATION_FAILED,
+          fallbackReason = fallbackReason,
           assessment = deterministicResult.assessment,
           latencyMs = result.latencyMs,
           provenance = deterministicResult.provenance,

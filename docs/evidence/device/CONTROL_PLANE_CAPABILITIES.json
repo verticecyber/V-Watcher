@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-09-14T12:42:00Z",
+  "control_plane": {
+    "base": "http://localhost:8000",
+    "proxied_base": "http://localhost:8080/__aistudio_internal_control_plane/",
+    "reachable": true,
+    "health_endpoint": "/health",
+    "auth_mode": "Google ID Token Bearer validation against AUTHORIZED_SERVICE_ACCOUNT_EMAIL"
+  },
+  "capabilities": {
+    "deploy": {
+      "available": true,
+      "mechanism": "APP_DEPLOY_BRIDGE",
+      "route": "/build/outputs/apk/debug/app-debug.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "proof": "Binary route analysis and HTTP HEAD inspection (HTTP 401 Unauthorized with CORS headers for unauthenticated request; platform orchestrator pulls artifact on turn completion)"
+    },
+    "bundle_deploy": {
+      "available": true,
+      "mechanism": "AAB_EXPORT_BRIDGE",
+      "route": "/build/outputs/bundle/release/app-release.aab",
+      "content_type": "application/octet-stream",
+      "proof": "Binary route analysis in control-plane-api"
+    },
+    "install": {
+      "available": false,
+      "mechanism": "ORCHESTRATOR_INTERNAL_ONLY",
+      "proof": "No direct install endpoint exposed to container. Install is commanded externally by AI Studio platform orchestrator into Google Cloud AVD fleet upon agent turn completion"
+    },
+    "launch": {
+      "available": false,
+      "mechanism": "ORCHESTRATOR_INTERNAL_ONLY",
+      "proof": "No launch RPC or endpoint exists in control-plane-api. Activity launch (MAIN/LAUNCHER) is triggered automatically by the external streaming fleet"
+    },
+    "logs": {
+      "available": false,
+      "mechanism": "CONTAINER_DEV_SERVER_ONLY",
+      "route": "/dev/logs",
+      "proof": "Route /dev/logs streams container process stdout/stderr via broadcaster; no Logcat piping or Android runtime log capture exists in control-plane binary"
+    },
+    "screenshot": {
+      "available": false,
+      "mechanism": "NONE",
+      "proof": "Symbol and string analysis of control-plane-api yields 0 matches for screenshot/screen capture; screenshots are rendered solely in client browser DOM via WebRTC stream"
+    },
+    "device_info": {
+      "available": false,
+      "mechanism": "NONE",
+      "proof": "No endpoint or RPC in control-plane-api for querying AVD hardware, build properties, or system image details"
+    },
+    "shell": {
+      "available": false,
+      "mechanism": "CONTAINER_ONLY",
+      "route": "/dev/exec",
+      "proof": "Shell execution is scoped entirely to the gVisor build container. No ADB shell or remote Android shell bridge exists"
+    },
+    "app_state": {
+      "available": false,
+      "mechanism": "NONE",
+      "proof": "No application lifecycle or process state endpoint in control-plane"
+    },
+    "logcat": {
+      "available": false,
+      "mechanism": "NONE",
+      "proof": "ADB daemon at tcp:5037 has empty device list; control-plane has no Logcat bridge"
+    },
+    "port_forward": {
+      "available": false,
+      "mechanism": "NONE",
+      "proof": "No adb forward/reverse mechanism or reverse proxy to streaming emulator port"
+    },
+    "crash_report": {
+      "available": false,
+      "mechanism": "NONE",
+      "proof": "No crash collection bridge between AVD and build container"
+    }
+  }
+}

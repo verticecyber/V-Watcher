@@ -15,6 +15,7 @@ enum class ExecutionStatus(val displayName: String) {
 enum class FallbackReason(val code: String, val description: String) {
   GEMINI_NANO_UNAVAILABLE("GEMINI_NANO_UNAVAILABLE", "AICore / Gemini Nano not available on host device"),
   GEMMA_UNAVAILABLE("GEMMA_UNAVAILABLE", "Local Gemma model weights or runtime not found"),
+  MODEL_LOAD_ERROR("MODEL_LOAD_ERROR", "Failed to load model weights or initialize inference session"),
   RESOURCE_GUARD_DENIED("RESOURCE_GUARD_DENIED", "Resource guardrail suppressed inference to protect device"),
   BATTERY_CRITICAL_DISCHARGING("BATTERY_CRITICAL_DISCHARGING", "Battery < 15% and discharging; local LLM inference suppressed"),
   SEVERE_MEMORY_PRESSURE("SEVERE_MEMORY_PRESSURE", "Severe RAM pressure detected; avoiding out-of-memory crash"),
@@ -22,6 +23,8 @@ enum class FallbackReason(val code: String, val description: String) {
   CONCURRENCY_LOCKED("CONCURRENCY_LOCKED", "Another local model inference is already executing"),
   MODEL_INITIALIZATION_FAILED("MODEL_INITIALIZATION_FAILED", "Model runtime initialization returned an error"),
   MODEL_TIMEOUT("MODEL_TIMEOUT", "Model inference exceeded strict execution deadline"),
+  MODEL_OUTPUT_INVALID("MODEL_OUTPUT_INVALID", "Model output was malformed or failed structured parsing validation"),
+  MODEL_EXECUTION_ERROR("MODEL_EXECUTION_ERROR", "Model inference threw an unhandled runtime exception"),
   NONE("NONE", "No fallback occurred")
 }
 

@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-09-14T12:30:00Z",
+  "audit_scope": "Reasoning Substrates & Routing Verification",
+  "backends": {
+    "deterministic": {
+      "configured": true,
+      "state": "READY",
+      "model_identity": "Deterministic Clinical Baseline Rule Engine",
+      "is_real_on_device_model": false,
+      "runtime": "JVM Rule Engine",
+      "execution_status": "VERIFIED_LIVE",
+      "evaluated_rules": [
+        "Thermal > 42°C -> SUSPICIOUS (Confidence 90)",
+        "Candidate socket/packet/burst -> SUSPICIOUS (Confidence 88)",
+        "Low memory / usage > 88% -> BENIGN_ANOMALY (Confidence 82)",
+        "Power save with battery > 50% -> BENIGN_ANOMALY (Confidence 75)",
+        "Equilibrium baseline -> NORMAL (Confidence 96)"
+      ]
+    },
+    "gemini_nano": {
+      "configured": true,
+      "state": "UNAVAILABLE",
+      "model_identity": "Google AICore / Gemini Nano",
+      "aicore_package_present": false,
+      "runtime_available": false,
+      "inference_callable": false,
+      "execution_verdict": "NOT_EXECUTED (STUB)",
+      "notes": "AICore package (com.google.android.aicore) is absent in this runtime environment. Router correctly catches unavailability and triggers deterministic fallback without crashing."
+    },
+    "gemma": {
+      "configured": true,
+      "state": "UNAVAILABLE",
+      "model_identity": "Google Gemma 2B On-Device",
+      "weights_file_present": false,
+      "expected_file": "filesDir/models/gemma-2b-it-cpu.bin",
+      "runtime_available": false,
+      "inference_callable": false,
+      "execution_verdict": "NOT_EXECUTED (STUB)",
+      "notes": "Gemma model weights not present. Router correctly routes to deterministic fallback."
+    }
+  },
+  "router_behavior": {
+    "preference_order": ["GEMINI_NANO", "GEMMA", "DETERMINISTIC"],
+    "concurrency_lock": "ReentrantLock / Guardrails protected",
+    "fallback_distinction": "Maintains selectedBackend (requested) vs actualBackendUsed (executed)",
+    "provenance_integrity": "Deterministic execution explicitly declares isRealOnDeviceModel = false"
+  }
+}

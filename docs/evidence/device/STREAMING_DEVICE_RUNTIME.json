@@ -1,0 +1,76 @@
+{
+  "timestamp": "2026-09-14T12:42:30Z",
+  "device_classification": "EXTERNAL_STREAMING_EMULATOR",
+  "physical_device": false,
+  "hardware": {
+    "provider": "Google Cloud Android Emulator Fleet",
+    "architecture": "x86_64 / arm64 virtualized (Cloud Run / Compute Engine AVD)",
+    "display": "WebRTC streamed to browser client canvas",
+    "touch_input": "Browser DOM pointer events mapped to emulator inputs",
+    "aicore_hardware_accelerator": "ABSENT (Cloud AVD does not expose Google Tensor NPU)"
+  },
+  "runtime_properties": {
+    "package_name": "com.aistudio.vwatcher.hkmv",
+    "main_activity": "com.example.MainActivity",
+    "target_sdk": 36,
+    "min_sdk": 24,
+    "build_flavor": "debug",
+    "exported_components": [
+      {
+        "name": "com.example.MainActivity",
+        "type": "Activity",
+        "intent_filter": ["android.intent.action.MAIN", "android.intent.category.LAUNCHER"]
+      }
+    ]
+  },
+  "subsystems_observed": {
+    "battery_manager": {
+      "observed_source": "Android OS ACTION_BATTERY_CHANGED (Simulated/AC 100% on AVD)",
+      "provenance": "BatteryProvider"
+    },
+    "activity_manager": {
+      "observed_source": "ActivityManager.MemoryInfo",
+      "provenance": "DeviceResourceProvider"
+    },
+    "connectivity_manager": {
+      "observed_source": "ConnectivityManager.activeNetworkInfo / NetworkCapabilities",
+      "provenance": "NetworkTelemetryProvider"
+    },
+    "package_manager": {
+      "observed_source": "PackageManager.getInstalledPackages()",
+      "provenance": "AppInventoryProvider"
+    },
+    "usage_stats_manager": {
+      "observed_source": "UsageStatsManager.queryUsageStats() (Permission Gated: PACKAGE_USAGE_STATS)",
+      "provenance": "AppUsageProvider"
+    },
+    "build_state": {
+      "observed_source": "android.os.Build",
+      "provenance": "SystemStateProvider"
+    }
+  },
+  "ai_subsystems": {
+    "google_aicore": {
+      "package": "com.google.android.aicore",
+      "status": "ENVIRONMENT_UNAVAILABLE",
+      "reason": "Google AICore is a proprietary system package restricted to physical Google Tensor (Pixel 8+) devices and select OEM flagships. Not bundled in generic Android Cloud AVD images."
+    },
+    "gemini_nano": {
+      "status": "ENVIRONMENT_UNAVAILABLE",
+      "fallback_engaged": true,
+      "fallback_backend": "DETERMINISTIC"
+    },
+    "gemma": {
+      "status": "ENVIRONMENT_BLOCKED",
+      "reason": "Local weights file (models/gemma-2b-it-cpu.bin) not packaged or downloaded in application sandbox.",
+      "fallback_engaged": true,
+      "fallback_backend": "DETERMINISTIC"
+    }
+  },
+  "observability_limits": {
+    "container_adb_access": false,
+    "direct_logcat_stream": false,
+    "runtime_screenshot_export": false,
+    "evaluation_mode": "Deterministic baseline verified in JVM/Robolectric host (L2) and UI rendered via platform deploy bridge on Streaming Emulator"
+  }
+}
