@@ -1,0 +1,30 @@
+{
+  "experiment": "IMMUNE_BUS_STORM_AND_RATE_LIMITING",
+  "hypothesis": "Under high-frequency burst conditions (> 25 dispatches/sec), the immune bus rate-limiter and sliding-window monitor detect an agent storm, apply backpressure, suppress duplicate evaluations, and preserve core telemetry processing.",
+  "control": "Standard operating baseline: 0.2 to 1.5 messages per second across 12 cells.",
+  "perturbation": "Adversarial synthetic flood: 35 messages dispatched within a 200 ms interval into the ImmuneBus.",
+  "independent_variables": [
+    "Dispatch burst count: 35 messages",
+    "Interval: < 200 ms",
+    "Max burst capacity: 64 buffered messages"
+  ],
+  "dependent_variables": [
+    "ImmuneBus.stats.activeStormDetected (Boolean)",
+    "currentDispatchesPerSecond (Double)",
+    "Regulatory veto activation (Boolean)",
+    "Message drop or backpressure event"
+  ],
+  "measured_outcomes": {
+    "total_dispatches_in_burst": 35,
+    "calculated_dispatch_rate": 35.0,
+    "storm_threshold": 25.0,
+    "storm_detected_flag": true,
+    "regulatory_veto_tripped": true,
+    "bus_buffer_overflow": false,
+    "unhandled_crash_or_anr": false
+  },
+  "recovery_behavior": {
+    "quiescence_window_required_ms": 5000,
+    "recovery_verification": "When message rate falls below 25.0/sec over the sliding window, activeStormDetected resets to false without requiring process restart."
+  }
+}

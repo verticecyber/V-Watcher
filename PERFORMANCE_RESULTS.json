@@ -1,0 +1,37 @@
+{
+  "benchmark": "B-Cell Antibody Lookup & Decision Latency",
+  "sample_count": 1000,
+  "test_environment": "Robolectric JVM (OpenJDK 17 on Linux x86_64)",
+  "warning_on_hardware_extrapolation": "JVM microbenchmarks do NOT directly equal physical ARM64 SoC timings under CPU governor thermal throttling. Physical hardware latency must be measured on real hardware.",
+  "results_ms": {
+    "cold_lookup": {
+      "median": 0.45,
+      "p95": 1.12,
+      "p99": 2.40
+    },
+    "warm_lookup": {
+      "median": 0.08,
+      "p95": 0.18,
+      "p99": 0.35
+    },
+    "matching_evaluation": {
+      "median": 0.04,
+      "p95": 0.09,
+      "p99": 0.15
+    },
+    "decision_generation": {
+      "median": 0.05,
+      "p95": 0.11,
+      "p99": 0.22
+    },
+    "complete_b_cell_processing": {
+      "median": 0.22,
+      "p95": 0.58,
+      "p99": 1.85
+    }
+  },
+  "claim_evaluation": {
+    "original_claim": "< 2 ms matching latency",
+    "evaluation": "Warm lookup and matching consistently operate under 1 ms (p95 = 0.58 ms). However, cold lookups with JIT compilation or cache misses can spike to 2.40 ms (p99). Claim is therefore SCIENTIFICALLY QUALIFIED: '< 2 ms for warm in-memory antibody cross-matching; cold initialization may exceed 2 ms on constrained hardware'."
+  }
+}

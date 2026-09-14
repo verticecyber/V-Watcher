@@ -1,0 +1,92 @@
+{
+  "dimensions": [
+    {
+      "dimension": "ENERGY",
+      "telemetry_source": "BatteryProvider (BatteryManager intent)",
+      "transformation": "temp > 45.0C -> CRITICAL, temp > 40.0C -> STRAINED, pct < 15% && discharging -> CRITICAL",
+      "thresholds": {"critical_temp_c": 45.0, "elevated_temp_c": 40.0, "critical_battery_pct": 15},
+      "verified_transitions": ["HEALTHY -> STRAINED", "STRAINED -> CRITICAL", "CRITICAL -> RECOVERING", "RECOVERING -> HEALTHY"],
+      "stale_behavior": "If battery telemetry age > 30,000 ms, dimension marks UNKNOWN and confidence drops to 50%",
+      "unknown_behavior": "Treated as cautionary; prevents false-healthy state",
+      "recovery_behavior": "Requires 3 consecutive observations <= 38.0C and discharging rate stabilized"
+    },
+    {
+      "dimension": "MEMORY_PRESSURE",
+      "telemetry_source": "DeviceResourceProvider (ActivityManager.MemoryInfo)",
+      "transformation": "isLowMemory == true || availableMemBytes < 150MB -> CRITICAL, < 300MB -> ELEVATED",
+      "thresholds": {"critical_mb": 150, "elevated_mb": 300},
+      "verified_transitions": ["HEALTHY -> ELEVATED", "ELEVATED -> CRITICAL", "CRITICAL -> RECOVERING", "RECOVERING -> HEALTHY"],
+      "stale_behavior": "Marks UNKNOWN if sampling gap exceeds threshold",
+      "unknown_behavior": "Inhibits speculative cell proliferation",
+      "recovery_behavior": "Requires availableMemBytes > 400MB consistently"
+    },
+    {
+      "dimension": "NETWORK_DISCONTINUITY",
+      "telemetry_source": "NetworkTelemetryProvider (ConnectivityManager)",
+      "transformation": "captivePortalDetected -> SUSPICIOUS, isConnected == false -> DISCONNECTED, vpnActive -> MONITORED",
+      "thresholds": {"loss_duration_ms": 15000},
+      "verified_transitions": ["CONNECTED -> PORTAL_DETECTED", "PORTAL_DETECTED -> RECOVERING", "RECOVERING -> CONNECTED"],
+      "stale_behavior": "Transitions to UNKNOWN",
+      "unknown_behavior": "Suppresses network-based remote inference",
+      "recovery_behavior": "Verified Internet capability with DNS ping resolution"
+    },
+    {
+      "dimension": "SYSTEM_STABILITY",
+      "telemetry_source": "SystemStateProvider (uptime, crash records)",
+      "transformation": "recentAnrsOrCrashes > 0 -> UNSTABLE",
+      "thresholds": {"crash_count_window": 1},
+      "verified_transitions": ["STABLE -> UNSTABLE", "UNSTABLE -> RECOVERING", "RECOVERING -> STABLE"],
+      "stale_behavior": "Marks UNKNOWN",
+      "unknown_behavior": "Triggers defensive state preservation",
+      "recovery_behavior": "Stable execution window > 60 seconds without exceptions"
+    },
+    {
+      "dimension": "DEVICE_SECURITY",
+      "telemetry_source": "AppInventoryProvider & SystemStateProvider",
+      "transformation": "unknownSideloadDetected -> WATCH, debugBuildFlag -> DEV_AUDIT",
+      "thresholds": {"sideloaded_untrusted_count": 1},
+      "verified_transitions": ["SECURE -> WATCH", "WATCH -> SECURE"],
+      "stale_behavior": "Marks UNKNOWN",
+      "unknown_behavior": "Raises suspicion score",
+      "recovery_behavior": "Inventory scan confirms no aberrant untrusted components"
+    },
+    {
+      "dimension": "RUNTIME_INTEGRITY",
+      "telemetry_source": "AndroidRealityBoundary state map",
+      "transformation": "isolatedSubsystems.size > 0 -> DEGRADED, inferenceThrottled -> THROTTLED",
+      "thresholds": {"isolated_count": 1},
+      "verified_transitions": ["INTEGRAL -> DEGRADED", "DEGRADED -> RECOVERING", "RECOVERING -> INTEGRAL"],
+      "stale_behavior": "Self-check on every observation tick",
+      "unknown_behavior": "Forces safety reset if integrity status cannot be determined",
+      "recovery_behavior": "Subsystem isolation cleared and verified healthy"
+    },
+    {
+      "dimension": "IMMUNE_ACTIVITY",
+      "telemetry_source": "ImmuneBus stats",
+      "transformation": "dispatchesPerSecond > 25.0 -> STORM_ALERT, activeEffectorCount > 4 -> HIGH_ACTIVITY",
+      "thresholds": {"storm_rate_per_sec": 25.0},
+      "verified_transitions": ["BASAL -> ACTIVE", "ACTIVE -> STORM_ALERT", "STORM_ALERT -> REGULATED", "REGULATED -> BASAL"],
+      "stale_behavior": "Bus state is always live within in-memory stateflow",
+      "unknown_behavior": "N/A (in-process)",
+      "recovery_behavior": "Dispatches drop below 5/sec for 10 seconds"
+    },
+    {
+      "dimension": "INCIDENT_LOAD",
+      "telemetry_source": "BiomimeticImmuneSystem active case store",
+      "transformation": "activeCases.size > 3 -> ELEVATED, activeCases.size > 10 -> EXHAUSTION",
+      "thresholds": {"elevated_cases": 3, "exhaustion_cases": 10},
+      "verified_transitions": ["QUIESCENT -> ACTIVE", "ACTIVE -> ELEVATED", "ELEVATED -> RECOVERING", "RECOVERING -> QUIESCENT"],
+      "stale_behavior": "Evaluated against active database records",
+      "unknown_behavior": "Requires case re-sync",
+      "recovery_behavior": "All active cases transition to RESOLVED or ARCHIVED"
+    }
+  ],
+  "macro_state_machine": {
+    "states": ["HOMEOSTATIC", "WATCH", "STRESSED", "ACTIVE_DEFENSE", "RECOVERING", "UNKNOWN"],
+    "verified_falsification_tests": [
+      "Stale telemetry test: When observation is older than stalenessThresholdMs (30s), macro-state transitions to UNKNOWN; false-healthy survival is strictly prevented.",
+      "Hysteresis test: A single borderline reading (e.g. 40.1C -> 39.9C) requires dampening window (3 ticks) before state transition to prevent continuous flapping.",
+      "Dual condition resolution: Case resolution is prevented while any dimension remains STRESSED or ACTIVE_DEFENSE."
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "system": "ResolutionCell Equilibrium Verification Audit",
+  "principle": "Resolution requires verified physiological return to baseline. Timer expiration, message silence, or agent inactivity alone can NEVER close an incident.",
+  "state_transitions": [
+    {
+      "from": "ACTIVE",
+      "to": "CONTAINED",
+      "trigger": "Acute effector response executed (Neutrophil/Cytotoxic/Macrophage) and immediate danger capped",
+      "status": "VALIDATED"
+    },
+    {
+      "from": "CONTAINED",
+      "to": "RECOVERING",
+      "trigger": "All active evidence items cleared, reality boundary cleanup verified, but physiological metrics still normalizing",
+      "status": "VALIDATED"
+    },
+    {
+      "from": "RECOVERING",
+      "to": "RESOLVED",
+      "trigger": "Fresh telemetry confirms battery temp <= 38.0C, available memory >= 400MB, no network captive portal, and 0 active anomalies",
+      "status": "VALIDATED"
+    },
+    {
+      "from": "CONTAINED",
+      "to": "RESOLVED (Premature attempt)",
+      "trigger": "Timer tick or attempt to skip RECOVERING while evidence still active",
+      "status": "REJECTED_BY_DESIGN",
+      "evidence": "ResolutionCell.verifyBaselineReturn() returns canResolve = false, preserving CONTAINED state"
+    },
+    {
+      "from": "CONTAINED",
+      "to": "RESOLVED (Time-only attempt with abnormal telemetry)",
+      "trigger": "Active evidence cleared from buffer, but battery is still 44.0C and available RAM is 110MB",
+      "status": "REJECTED_BY_DESIGN",
+      "evidence": "ResolutionCell.verifyBaselineReturn() returns canResolve = false with reason 'Host resources not yet normalized'"
+    }
+  ]
+}

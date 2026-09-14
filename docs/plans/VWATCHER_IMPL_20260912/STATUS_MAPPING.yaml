@@ -1,0 +1,26 @@
+schema: vertice.status_mapping.v1
+mapping_id: STATUS-VWATCHER-01
+bundle_id: VWATCHER-IMPL-B1
+plan_id: VWATCHER-IMPL-20260912
+version: 1
+native_vocabulary:
+  vocabulary_id: vwatcher-native-v1
+  version: '1'
+  authority_id: AUTH-OWNER
+effective_at: '2026-09-12T19:38:28Z'
+expires_at: '2026-12-12T19:00:00Z'
+supersedes: null
+pairs:
+- native: BLOCKED
+  canonical: BLOCKED
+- native: IN_PROGRESS
+  canonical: IN_PROGRESS
+- native: PENDING
+  canonical: PENDING
+- native: PHASE_FAIL
+  canonical: PHASE_FAIL
+- native: PHASE_PASS
+  canonical: PHASE_PASS
+- native: PHASE_PASS_WITH_LIMITATIONS
+  canonical: PHASE_PASS_WITH_LIMITATIONS
+mapping_fingerprint: c4c0c029649c642710a99ad2f5b26ef1ac871613f1e1158468b9153122dcb434

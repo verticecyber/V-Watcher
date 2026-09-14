@@ -1,0 +1,40 @@
+{
+  "matrix": [
+    {
+      "claim": "Real Telemetry Ingestion",
+      "proof_a_implementation": "AndroidSentinel.observeNow() queries Android system services (BatteryManager, ActivityManager, ConnectivityManager, PackageManager) and stamps 6 provenance records.",
+      "proof_b_independent": "PENDING PHYSICAL DEVICE BENCH: Requires independent comparison against 'adb shell dumpsys battery', 'dumpsys meminfo', or external hardware measurement probe.",
+      "status": "IMPLEMENTED_LOGICALLY_VERIFIED_PHYSICAL_BENCH_PENDING"
+    },
+    {
+      "claim": "Real Actuation",
+      "proof_a_implementation": "AndroidRealityBoundary executes cache deletion (java.io.File.delete), coroutine dispatcher throttling, subsystem set isolation, and Settings Intents.",
+      "proof_b_independent": "File deletion verified via context.cacheDir inspection (files removed, bytes freed). External process termination honestly declared UNAVAILABLE due to Android sandbox.",
+      "status": "VALIDATED_WITHIN_SANDBOX"
+    },
+    {
+      "claim": "Real Memory Persistence",
+      "proof_a_implementation": "LocalImmuneMemoryRepository inserts ImmuneCaseRecordEntity and ImmuneMemoryPatternEntity into Room SQLite.",
+      "proof_b_independent": "Database file verified on disk; cold database re-query successfully retrieves persisted cases and patterns across repository instances.",
+      "status": "VALIDATED"
+    },
+    {
+      "claim": "Real Resolution Verification",
+      "proof_a_implementation": "ResolutionCell requires physiological baseline return (temp <= 38C, RAM >= 400MB) before transitioning case to RESOLVED.",
+      "proof_b_independent": "Adversarial tests confirm premature resolution and time-only resolution are strictly blocked while anomalies persist.",
+      "status": "VALIDATED"
+    },
+    {
+      "claim": "Model Routing & Fallback",
+      "proof_a_implementation": "ReasoningRouter selects between GeminiNanoBackend, GemmaBackend, and DeterministicBackend based on availability and guardrails.",
+      "proof_b_independent": "Router explicitly marks ExecutionStatus = FALLBACK and actualBackendUsed = 'DETERMINISTIC'. Zero silent substitution.",
+      "status": "VALIDATED"
+    },
+    {
+      "claim": "Homeostasis Hysteresis & Storm Protection",
+      "proof_a_implementation": "HomeostasisModel implements 8 dimensions and multi-observation dampening; ImmuneBus tracks dispatch velocity and trips storm alarm at > 25 msg/sec.",
+      "proof_b_independent": "Storm experiment demonstrates activeStormDetected = true and regulatory veto engagement under 35 msg/burst injection.",
+      "status": "VALIDATED"
+    }
+  ]
+}

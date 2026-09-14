@@ -1,0 +1,175 @@
+schema: vertice.plan_records_manifest.v1
+manifest_id: MANIFEST-VWATCHER-03
+bundle_id: VWATCHER-IMPL-B1
+bundle_revision: 1
+predecessor_manifest: null
+plan_id: VWATCHER-IMPL-20260912
+created_at: '2026-09-12T19:26:35Z'
+external_authority_anchor: null
+policy:
+  fsm_version: vertice.phase_fsm.v1
+  hash_profile: RFC8785_SHA256
+  authority_model: SELF_ASSERTED_PROSPECTIVE
+  aggregation: SINGLE_ACTIVE_PHASE_SERIAL_FAN_IN
+  canonical_appender: local-agent
+immutable_bindings:
+  plan_specification:
+    path: IMPLEMENTATION_PLAN.md
+    format: MARKDOWN
+    sha256: 4cf55fb728f5644fda66b2c9f26f76ecf98a851de9f27eb54315460184c936ce
+  plan_graph:
+    path: PLAN_GRAPH.yaml
+    schema: vertice.plan_graph.v1
+    sha256: 464c3ee83e274003c2fdb8f509fb4aa0e09d6f8491b4f73a3fd74a287fead505
+  status_mapping:
+    path: STATUS_MAPPING.yaml
+    schema: vertice.status_mapping.v1
+    sha256: fb6d857e16045126fb6fda876ec6ce0a142b7ce73967f8efc2bb78cfd1376354
+    mapping_fingerprint: 7cdda5b3b954843873ef48bafa8924695ade9a81284b1ba606584880f13aa3dc
+  material_sources:
+  - source_id: SRC-AAB
+    path: sources/app-release.aab
+    revision: sha256:28dd9bedfbd27c1a3ce08bd1986bf8853cdf83a695520e519d93b2000f6af72e
+    sha256: 28dd9bedfbd27c1a3ce08bd1986bf8853cdf83a695520e519d93b2000f6af72e
+    observed_at: '2026-09-12T19:26:35Z'
+    expires_at: '2026-12-12T19:00:00Z'
+    lineage_id: LIN-RELEASE-PIPELINE
+    source_grade: LOCAL_RUNTIME
+    freshness_rule: INVALIDATE_ON_REBUILD
+    limitations:
+    - test-signed; not a Play submission claim
+    permitted_use:
+    - release-pipeline parity anchor for device phase
+  - source_id: SRC-RECON
+    path: sources/RECONCILIATION.md
+    revision: sha256:cdb86ee93ef8bb5c743f167f8aff5a2fd44aec033414954dde5d7fa1b19ca445
+    sha256: cdb86ee93ef8bb5c743f167f8aff5a2fd44aec033414954dde5d7fa1b19ca445
+    observed_at: '2026-09-12T19:26:35Z'
+    expires_at: '2026-12-12T19:00:00Z'
+    lineage_id: LIN-PETSCAN-ADVERSARIAL
+    source_grade: LOCAL_SOURCE
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+    - grep batteries A1-A8 and B1-B7 are point-in-time
+    permitted_use:
+    - refined gap statements G2 G3 G14 G20 G21
+  - source_id: SRC-SOT
+    path: sources/SOT.md
+    revision: sha256:4b2359ebd23231a0efd586c874c9de39a7a2b5eed9a653a9e154e9c948dce555
+    sha256: 4b2359ebd23231a0efd586c874c9de39a7a2b5eed9a653a9e154e9c948dce555
+    observed_at: '2026-09-12T19:26:35Z'
+    expires_at: '2026-12-12T19:00:00Z'
+    lineage_id: LIN-PETSCAN-ADVERSARIAL
+    source_grade: LOCAL_SOURCE
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+    - L2-only runtime evidence; L3-L5 absent
+    - UI strings unbound until G13
+    permitted_use:
+    - gap premises and scope fence for this plan only
+  - source_id: SRC-THRESH
+    path: sources/THRESHOLDS.md
+    revision: sha256:c90cc6aedfc72b986cc19133ad10e279408fe41975aa880381b85172676d56ef
+    sha256: c90cc6aedfc72b986cc19133ad10e279408fe41975aa880381b85172676d56ef
+    observed_at: '2026-09-12T19:26:35Z'
+    expires_at: '2026-12-12T19:00:00Z'
+    lineage_id: LIN-PETSCAN-ADVERSARIAL
+    source_grade: LOCAL_SOURCE
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+    - inventory only; no value endorsed as correct
+    permitted_use:
+    - threshold consumer mapping for PH-03
+  - source_id: SRC-TRACE
+    path: sources/TRACE_HARNESS.kt
+    revision: sha256:3dd79cdd41de30ed9790c0b95585fa320b7fbcf24a69dc004419c80cead82367
+    sha256: 3dd79cdd41de30ed9790c0b95585fa320b7fbcf24a69dc004419c80cead82367
+    observed_at: '2026-09-12T19:26:35Z'
+    expires_at: '2026-12-12T19:00:00Z'
+    lineage_id: LIN-L2-RUNTIME
+    source_grade: LOCAL_RUNTIME
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+    - Robolectric shadows; not hardware truth
+    permitted_use:
+    - baseline pipeline behavior for regression gates
+  material_sources_fingerprint: 1ac148a5216a4aac340a6a639c15bbca1dd067673a0933cd5ff5ee11b102ba9e
+records:
+  transition_ledger:
+    ledger_id: LEDGER-VWATCHER-01
+    path: TRANSITION_LEDGER.jsonl
+    schema: vertice.transition_event.v1
+    format: JSONL
+    topology: LINEAR
+  evidence_registry:
+    registry_id: EVIDENCE-VWATCHER-01
+    path: EVIDENCE_REGISTRY.jsonl
+    schema: vertice.evidence_record.v1
+    format: JSONL
+    topology: LINEAR
+  progress_projection:
+    projection_id: PROGRESS-VWATCHER-01
+    path: PROGRESS_PROJECTION.json
+    schema: vertice.progress_projection.v1
+  work_projection:
+    projection_id: WORK-VWATCHER-01
+    path: WORK_PROJECTION.json
+    schema: vertice.work_projection.v1
+  progress_view:
+    view_id: PROGRESS-VIEW-VWATCHER-01
+    path: PLAN_PROGRESS.md
+    schema: vertice.progress_view.v1
+    format: MARKDOWN
+    source_projection: progress_projection
+  work_view:
+    view_id: WORK-VIEW-VWATCHER-01
+    path: WORK_IN_PROGRESS.md
+    schema: vertice.work_view.v1
+    format: MARKDOWN
+    source_projection: work_projection
+phase_initial_states:
+  PH-01: PENDING
+  PH-02: PENDING
+  PH-03: PENDING
+  PH-04: PENDING
+  PH-05: PENDING
+  PH-06: PENDING
+  PH-CLOSE: PENDING
+authorities:
+- authority_id: AUTH-OWNER
+  actor: local-agent
+  prospective: true
+  effective_at: '2026-09-12T19:00:00Z'
+  expires_at: '2026-12-12T19:00:00Z'
+  revoked_at: null
+  phase_grants:
+  - PH-01
+  - PH-02
+  - PH-03
+  - PH-04
+  - PH-05
+  - PH-06
+  - PH-CLOSE
+  target_grants:
+  - T-BOUND12
+  - T-CHAN04
+  - T-ENG03
+  - T-ENG17
+  - T-GUARD03
+  - T-ORCH04
+  - T-TELE14
+  - T-TESTS
+  - T-UI05
+  - T-VM04
+  - T-VM05
+  actions:
+  - BLOCK
+  - EVIDENCE
+  - FAIL
+  - INVALIDATION
+  - PASS
+  - PASS_WITH_LIMITATIONS
+  - RETRY
+  - START
+  - UNBLOCK
+manifest_fingerprint: 67aab5724b78c07acccff754a40d4daf5c94b8a3dfd8072c4f501883dce92963

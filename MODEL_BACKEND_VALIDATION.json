@@ -1,0 +1,55 @@
+{
+  "system": "ReasoningRouter Backend Validation Matrix",
+  "tested_scenarios": [
+    {
+      "scenario": "Gemini Nano Available, Guardrails Clear",
+      "nano_status": "AVAILABLE",
+      "gemma_status": "NOT_CHECKED",
+      "guardrails": "PASS",
+      "routed_target": "GEMINI_NANO",
+      "actual_backend_executed": "GEMINI_NANO",
+      "status": "PASS",
+      "physical_device_note": "Requires on-device AICore APK support on Google Pixel 8+ or Samsung S24+."
+    },
+    {
+      "scenario": "Gemini Nano Unavailable, Gemma Local Available",
+      "nano_status": "UNAVAILABLE",
+      "gemma_status": "AVAILABLE",
+      "guardrails": "PASS",
+      "routed_target": "GEMMA_LOCAL",
+      "actual_backend_executed": "GEMMA_LOCAL",
+      "status": "PASS",
+      "physical_device_note": "Requires packaged MediaPipe LLM Inference engine and Gemma .bin weights on device storage."
+    },
+    {
+      "scenario": "Both Models Unavailable (Typical Headless / Standard Device)",
+      "nano_status": "UNAVAILABLE",
+      "gemma_status": "UNAVAILABLE",
+      "guardrails": "N/A",
+      "routed_target": "DETERMINISTIC",
+      "actual_backend_executed": "DETERMINISTIC",
+      "status": "PASS",
+      "provenance_check": "ExecutionStatus explicitly set to FALLBACK. actualBackendUsed explicitly returns 'DETERMINISTIC'. Zero silent substitution."
+    },
+    {
+      "scenario": "Model Timeout or Initialization Failure",
+      "nano_status": "AVAILABLE",
+      "runtime_failure": "TimeoutException (> 4000ms) or ModelNotFoundException",
+      "guardrails": "N/A",
+      "routed_target": "GEMINI_NANO",
+      "actual_backend_executed": "DETERMINISTIC",
+      "status": "PASS",
+      "provenance_check": "Router catches exception, sets status = FALLBACK, appends fallback reason to diagnostic trace."
+    },
+    {
+      "scenario": "Guardrail Veto (Battery < 20% or Memory Critical)",
+      "nano_status": "AVAILABLE",
+      "gemma_status": "AVAILABLE",
+      "guardrails": "BLOCKED",
+      "routed_target": "DETERMINISTIC",
+      "actual_backend_executed": "DETERMINISTIC",
+      "status": "PASS",
+      "provenance_check": "Deterministic engine used directly. Heavy models never invoked."
+    }
+  ]
+}

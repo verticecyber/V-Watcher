@@ -1,0 +1,17 @@
+# Permissions Audit — V-Watcher (2026-09-12, code evidence)
+
+Source of truth: `app/src/main/AndroidManifest.xml:1-40`. No other manifest, no dynamic permission requests found in `app/src/main` (grep: no `requestPermission` / Accompanist usage; permissions lib is commented out in `app/build.gradle.kts:81`).
+
+| Permission | Used where | Why required | User visible | Runtime / special | Play declaration | Removable |
+|---|---|---|---|---|---|---|
+| `INTERNET` (normal) | Declared `AndroidManifest.xml:7`. **No socket/HTTP client call found in `app/src/main`** (Retrofit/OkHttp declared but unused) | Currently unused; latent for Firebase/AI if ever wired | No | No | NORMAL | **YES — remove before release unless a network call lands** (dead permission = policy/questionnaire burden) |
+| `ACCESS_NETWORK_STATE` (normal) | `telemetry/NetworkTelemetryProvider.kt:5-77` (`ConnectivityManager`, `NetworkCapabilities`: transport type, validated flag, VPN detection) | Real network-*state* telemetry, core to watcher function | No (passive) | No | NORMAL | NO (core, passive, no PII) |
+| `QUERY_ALL_PACKAGES` (high-risk) | `telemetry/AppInventoryProvider.kt:11-84` (`getInstalledPackages(GET_PERMISSIONS)` → name, version, install times, requested-permission lists; all local) | Core antivirus-like inventory inspection; app presents per-app permission analysis (`VWatcherViewModel.kt:277`) | Yes (inventory UI) | Install-time, broad visibility | **DECLARATION_REQUIRED** — Permissions Declaration Form in Play Console + prominent disclosure + Play-listing description (per `support.google.com/googleplay/android-developer/answer/10158779`). Antivirus use is a listed permitted use, but eligibility + disclosure must be demonstrated; inventory data must never be sold/shared for ads/analytics | NO (core) — but keep use local-only and documented |
+| `PACKAGE_USAGE_STATS` (special access) | `telemetry/AppUsageProvider.kt:10-142` (`UsageStatsManager.queryEvents/queryUsageStats` 24h window, top-15 aggregates; graceful `PERMISSION_REQUIRED` path when denied, `:31-47`) | Behavioral baseline (foreground/background transitions) | Yes (Settings grant + in-app explanation strings `:37,121`) | Special: user grants via Settings; checked via `AppOpsManager` | **SENSITIVE / DECLARATION-adjacent** — prominent disclosure + consent required under User Data policy; data stays on-device (strong justification) | NO (core, optional-degraded: app works with `-1` health penalty, `VWatcherViewModel.kt:168`) |
+
+## Notes
+
+- No location, camera, mic, contacts, storage, notifications, foreground-service, exact-alarm, or admin permissions. The string `"Precise Location, Foreground Service"` at `VWatcherViewModel.kt:1023` describes **scanned third-party apps'** permission summaries, not V-Watcher self-capability — verify in review that UI context makes that unambiguous.
+- `tools:ignore="QueryAllPackagesPermission|ProtectedPermissions"` (`AndroidManifest.xml:12,16`) suppresses lint — justified only with the Play declaration filed; otherwise the warnings are the policy signal.
+- Single activity `exported=true` + MAIN/LAUNCHER (`AndroidManifest.xml:27-37`) is correct; no other exported components.
+- No background components exist (no service/receiver/provider/WorkManager/alarm) — background-data-disclosure risk is currently about *absence* of background work, not hidden work (§15 doc covers the narrative gap).

@@ -1,0 +1,58 @@
+{
+  "actuators": [
+    {
+      "biological_intent": "Neutrophil Degranulation (Acute localized containment)",
+      "android_capability": "Throttle V-Watcher internal coroutine dispatchers and reasoning invocations",
+      "actual_api": "V-Watcher internal Dispatcher state & AndroidRealityBoundary.isInferenceThrottled()",
+      "required_permission": "None (Internal app authority)",
+      "actual_runtime_authority": "FULL (Within V-Watcher process)",
+      "success_evidence": "isInferenceThrottled() returns true; downstream dendritic reasoning bypasses heavy neural execution",
+      "failure_evidence": "Exception thrown or state flag unchanged"
+    },
+    {
+      "biological_intent": "Macrophage Phagocytosis (Debris scavenging and recycling)",
+      "android_capability": "Inspect and delete temporary cache files in context.cacheDir; invoke System.gc() suggestion",
+      "actual_api": "java.io.File.delete() on context.cacheDir; System.gc()",
+      "required_permission": "None (Application sandbox cache authority)",
+      "actual_runtime_authority": "FULL (Within context.cacheDir)",
+      "success_evidence": "Concrete bytesFreed > 0 or filesRemoved returned; target cache directory cleaned",
+      "failure_evidence": "SecurityException or IO error recorded in ActionResult.evidence"
+    },
+    {
+      "biological_intent": "NK Cell Apoptosis (Kill aberrant / corrupted internal unit)",
+      "android_capability": "Isolate internal corrupt worker or coroutine job from live message bus",
+      "actual_api": "AndroidRealityBoundary.isolatedSubsystems.add(name)",
+      "required_permission": "None (Internal process state)",
+      "actual_runtime_authority": "FULL (Within V-Watcher process)",
+      "success_evidence": "isSubsystemIsolated(name) returns true; subsequent messages to that subsystem dropped",
+      "failure_evidence": "Name not present in isolatedSubsystems set"
+    },
+    {
+      "biological_intent": "Cytotoxic Targeted Lysis (Kill infected external entity)",
+      "android_capability": "TERMINATE_EXTERNAL_PACKAGE",
+      "actual_api": "N/A - Standard Android sandboxing prohibits killing 3rd party processes",
+      "required_permission": "android.permission.KILL_BACKGROUND_PROCESSES (only hints OS) or android.permission.FORCE_STOP_PACKAGES (Signature/System only)",
+      "actual_runtime_authority": "UNAVAILABLE (Standard third-party Android application authority)",
+      "success_evidence": "N/A - Must NEVER pretend to execute",
+      "failure_evidence": "ActionResult returns UNAVAILABLE with platformReason documenting Android Sandbox boundary and recommending NAVIGATE_APP_SETTINGS"
+    },
+    {
+      "biological_intent": "Cytotoxic Guided Remediation (User-assisted intervention)",
+      "android_capability": "Open Android System Application Details Settings for suspected aberrant app",
+      "actual_api": "Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts(\"package\", targetPackage, null))",
+      "required_permission": "None (Standard Android Intent framework)",
+      "actual_runtime_authority": "FULL (Standard Intent launch authority)",
+      "success_evidence": "Intent created with FLAG_ACTIVITY_NEW_TASK and valid package URI",
+      "failure_evidence": "ActivityNotFoundException if invalid intent or package URI"
+    },
+    {
+      "biological_intent": "Tissue Homeostasis Restoration (Post-containment reset)",
+      "android_capability": "Clear isolated subsystem list and release inference throttle",
+      "actual_api": "AndroidRealityBoundary.isolatedSubsystems.clear(); isInternalInferenceThrottled = false",
+      "required_permission": "None (Internal process state)",
+      "actual_runtime_authority": "FULL (Within V-Watcher process)",
+      "success_evidence": "isolatedSubsystems is empty; isInferenceThrottled() returns false",
+      "failure_evidence": "State flags remain dirty"
+    }
+  ]
+}

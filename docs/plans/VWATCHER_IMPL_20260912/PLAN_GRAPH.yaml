@@ -1,0 +1,897 @@
+schema: vertice.plan_graph.v1
+plan:
+  id: VWATCHER-IMPL-20260912
+  revision: 4
+  status: ACTIVE
+  claim_ceiling: active execution; phase claims per exit gates only, no closure claim
+  closure_phases:
+    - PH-CLOSE
+
+nodes:
+  - id: SRC-SOT
+    kind: SOURCE
+    label: Unified implementation SOT
+    locator: sources/SOT.md
+    revision: sha256:4b2359ebd23231a0efd586c874c9de39a7a2b5eed9a653a9e154e9c948dce555
+    content_sha256: 4b2359ebd23231a0efd586c874c9de39a7a2b5eed9a653a9e154e9c948dce555
+    observed_at: "2026-09-12T19:38:28Z"
+    expires_at: "2026-12-12T19:00:00Z"
+    lineage_id: LIN-PETSCAN-ADVERSARIAL
+    source_grade: LOCAL_SOURCE
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+      - L2-only runtime evidence; L3-L5 absent
+      - UI strings unbound until G13
+    permitted_use:
+      - gap premises and scope fence for this plan only
+
+  - id: SRC-RECON
+    kind: SOURCE
+    label: Adversarial reconciliation record
+    locator: sources/RECONCILIATION.md
+    revision: sha256:cdb86ee93ef8bb5c743f167f8aff5a2fd44aec033414954dde5d7fa1b19ca445
+    content_sha256: cdb86ee93ef8bb5c743f167f8aff5a2fd44aec033414954dde5d7fa1b19ca445
+    observed_at: "2026-09-12T19:38:28Z"
+    expires_at: "2026-12-12T19:00:00Z"
+    lineage_id: LIN-PETSCAN-ADVERSARIAL
+    source_grade: LOCAL_SOURCE
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+      - grep batteries A1-A8 and B1-B7 are point-in-time
+    permitted_use:
+      - refined gap statements G2 G3 G14 G20 G21
+
+  - id: SRC-THRESH
+    kind: SOURCE
+    label: Threshold inventory matrix
+    locator: sources/THRESHOLDS.md
+    revision: sha256:c90cc6aedfc72b986cc19133ad10e279408fe41975aa880381b85172676d56ef
+    content_sha256: c90cc6aedfc72b986cc19133ad10e279408fe41975aa880381b85172676d56ef
+    observed_at: "2026-09-12T19:38:28Z"
+    expires_at: "2026-12-12T19:00:00Z"
+    lineage_id: LIN-PETSCAN-ADVERSARIAL
+    source_grade: LOCAL_SOURCE
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+      - inventory only; no value endorsed as correct
+    permitted_use:
+      - threshold consumer mapping for PH-03
+
+  - id: SRC-TRACE
+    kind: SOURCE
+    label: L2 runtime trace harness
+    locator: sources/TRACE_HARNESS.kt
+    revision: sha256:3dd79cdd41de30ed9790c0b95585fa320b7fbcf24a69dc004419c80cead82367
+    content_sha256: 3dd79cdd41de30ed9790c0b95585fa320b7fbcf24a69dc004419c80cead82367
+    observed_at: "2026-09-12T19:38:28Z"
+    expires_at: "2026-12-12T19:00:00Z"
+    lineage_id: LIN-L2-RUNTIME
+    source_grade: LOCAL_RUNTIME
+    freshness_rule: INVALIDATE_ON_ANY_PRODUCT_MUTATION
+    limitations:
+      - Robolectric shadows; not hardware truth
+    permitted_use:
+      - baseline pipeline behavior for regression gates
+
+  - id: SRC-AAB
+    kind: SOURCE
+    label: Validated release artifact
+    locator: sources/app-release.aab
+    revision: sha256:28dd9bedfbd27c1a3ce08bd1986bf8853cdf83a695520e519d93b2000f6af72e
+    content_sha256: 28dd9bedfbd27c1a3ce08bd1986bf8853cdf83a695520e519d93b2000f6af72e
+    observed_at: "2026-09-12T19:38:28Z"
+    expires_at: "2026-12-12T19:00:00Z"
+    lineage_id: LIN-RELEASE-PIPELINE
+    source_grade: LOCAL_RUNTIME
+    freshness_rule: INVALIDATE_ON_REBUILD
+    limitations:
+      - test-signed; not a Play submission claim
+    permitted_use:
+      - release-pipeline parity anchor for device phase
+
+  - id: FACT-SUITE30
+    kind: FACT
+    label: Full suite green at freeze
+    statement: testDebugUnitTest passes 30 tests with 0 failures 0 errors 0 skipped on 2026-09-12
+    statement_kind: FACT
+    verification_state: VERIFIED
+    material_effect: entry-gate baseline for every mutating phase
+    impact_class: HIGH
+    sufficiency_oracle:
+      id: ORACLE-SUITE30
+      approving_authority: AUTH-OWNER
+      required_source_grades:
+        - LOCAL_RUNTIME
+      minimum_independent_lineages: 1
+      deterministic_gate_refs:
+        - T-ENTRY-SUITE
+      observed_result: SATISFIED
+    limitations:
+      - L2 only; ViewModel paths uncovered
+
+  - id: FACT-TRACE2X
+    kind: FACT
+    label: Pipeline trace reproduced twice
+    statement: nominal observe 158-181ms with fail-closed DEGRADED, storm 40 msgs flagged rate 40 no drops, router Nano-to-deterministic fallback 3-9ms with live SUSPICIOUS-88 rule
+    statement_kind: FACT
+    verification_state: VERIFIED
+    material_effect: regression oracle for fusion and consumption phases
+    impact_class: HIGH
+    sufficiency_oracle:
+      id: ORACLE-TRACE2X
+      approving_authority: AUTH-OWNER
+      required_source_grades:
+        - LOCAL_RUNTIME
+      minimum_independent_lineages: 1
+      deterministic_gate_refs:
+        - T-ENTRY-SUITE
+      observed_result: SATISFIED
+    limitations:
+      - Robolectric shadows; timings are ranges not SLAs
+
+  - id: FACT-AAB
+    kind: FACT
+    label: Release artifact validated
+    statement: app-release.aab 11016375 bytes sha256 28dd9bedfbd27c1a3ce08bd1986bf8853cdf83a695520e519d93b2000f6af72e passes bundletool validate with 3-permission manifest and clean dex
+    statement_kind: FACT
+    verification_state: VERIFIED
+    material_effect: release-pipeline parity anchor for device phase
+    impact_class: MEDIUM
+    sufficiency_oracle:
+      id: ORACLE-AAB
+      approving_authority: AUTH-OWNER
+      required_source_grades:
+        - LOCAL_RUNTIME
+      minimum_independent_lineages: 1
+      deterministic_gate_refs:
+        - T-ENTRY-SUITE
+      observed_result: SATISFIED
+    limitations:
+      - test-signed; not a Play submission claim
+
+  - id: FACT-VM1218
+    kind: FACT
+    label: ViewModel size and test gap
+    statement: VWatcherViewModel.kt is 1218 lines with zero covering tests
+    statement_kind: FACT
+    verification_state: VERIFIED
+    material_effect: forces file budget and split boundary for fusion phase
+    impact_class: HIGH
+    sufficiency_oracle:
+      id: ORACLE-VM1218
+      approving_authority: AUTH-OWNER
+      required_source_grades:
+        - LOCAL_SOURCE
+      minimum_independent_lineages: 1
+      deterministic_gate_refs:
+        - T-ENTRY-SUITE
+      observed_result: SATISFIED
+    limitations:
+      - line count only; complexity unmeasured
+
+  - id: GAP-G1
+    kind: GAP
+    label: ViewModel entirely untested
+    statement: scoring sim quarantine exam and memory-gate UI paths have zero covering tests
+    severity: CRITICAL
+    status: OPEN
+
+  - id: GAP-G2
+    kind: GAP
+    label: Homeostasis not consumed by decisions
+    statement: 8-dimension evaluation reaches only UI triage labels; no gating or actuation consumer
+    severity: CRITICAL
+    status: OPEN
+
+  - id: GAP-G3
+    kind: GAP
+    label: Dual decision pipelines compete
+    statement: legacy VM cells and BiomimeticImmuneSystem run in parallel with clobbering case writes and two reasoning entries
+    severity: CRITICAL
+    status: OPEN
+
+  - id: GAP-G6
+    kind: GAP
+    label: Bus has no functional subscriber
+    statement: sole collector is a no-op and 10 of 12 payload variants are never constructed
+    severity: HIGH
+    status: OPEN
+
+  - id: GAP-G7
+    kind: GAP
+    label: Regulatory outputs dropped
+    statement: forceDeterministic and imposedCooldownMs are produced and ignored by the orchestrator
+    severity: HIGH
+    status: OPEN
+
+  - id: GAP-G12
+    kind: GAP
+    label: Settings intent reported executed without launch
+    statement: NAVIGATE_APP_SETTINGS returns EXECUTED while startActivity is never called in the boundary
+    severity: HIGH
+    status: OPEN
+
+  - id: GAP-G13
+    kind: GAP
+    label: Fifteen UI strings overclaim backend
+    statement: banners defaults hardcoded literals and transport-level over-reads lack backend binding
+    severity: HIGH
+    status: OPEN
+
+  - id: GAP-G14
+    kind: GAP
+    label: isReal true on degraded paths
+    statement: UsageStats denied and ActivityManager-degraded results assert isReal true
+    severity: MEDIUM
+    status: OPEN
+
+  - id: GAP-G17
+    kind: GAP
+    label: Engine mirrors stale backend selection
+    statement: OnDeviceReasoningEngine.kt:109 reuses prior selectedBackend instead of the computed value
+    severity: MEDIUM
+    status: OPEN
+
+  - id: GAP-G18
+    kind: GAP
+    label: No device-layer validation
+    statement: L3 L4 L5 perf battery Doze permission UX and pre-launch evidence are absent
+    severity: HIGH
+    status: OPEN
+
+  - id: GAP-G19
+    kind: GAP
+    label: Neural backends never execute
+    statement: Nano and Gemma return canned assessments with no model call weights or runtime
+    severity: HIGH
+    status: OPEN
+
+  - id: GAP-G21
+    kind: GAP
+    label: Boundary flags unread
+    statement: throttle and isolation flags are written and never read so they signal nothing downstream
+    severity: MEDIUM
+    status: OPEN
+
+  - id: DEC-FUSION
+    kind: DECISION
+    label: Canonical pipeline direction
+    canonical_ref: VWATCHER-IMPL-20260912::D-FUSION
+    authority_ref: AUTH-OWNER
+
+  - id: DEC-HOMEO
+    kind: DECISION
+    label: Canonical homeostasis consumption
+    canonical_ref: VWATCHER-IMPL-20260912::D-HOMEO
+    authority_ref: AUTH-OWNER
+
+  - id: DEC-FLAGS
+    kind: DECISION
+    label: Canonical G21 disposition
+    canonical_ref: VWATCHER-IMPL-20260912::D-FLAGS
+    authority_ref: AUTH-OWNER
+
+  - id: AUTH-OWNER
+    kind: AUTHORITY
+    label: Repository owner prospective authority
+    actor: local-agent
+    prospective: true
+    effective_at: "2026-09-12T19:00:00Z"
+    expires_at: "2026-12-12T19:00:00Z"
+    revoked_at: null
+    actions:
+      - BLOCK
+      - EVIDENCE
+      - FAIL
+      - INVALIDATION
+      - PASS
+      - PASS_WITH_LIMITATIONS
+      - RETRY
+      - START
+      - UNBLOCK
+
+  - id: CTR-NO-MOCK
+    kind: CONTRACT
+    label: No mock theater
+    owner: AUTH-OWNER
+    predicate: every new test exercises production code paths with real collaborators under Robolectric and asserts observed behavior including negative cases
+    violation: FAIL_CLOSED
+
+  - id: CTR-FAIL-CLOSED
+    kind: CONTRACT
+    label: Fallback preserved
+    owner: AUTH-OWNER
+    predicate: selected-versus-actual backend bookkeeping plus deterministic fallback on every failure path remain intact and asserted after each mutation
+    violation: FAIL_CLOSED
+
+  - id: CTR-CEILING-L2
+    kind: CONTRACT
+    label: L2 claim ceiling
+    owner: AUTH-OWNER
+    predicate: no phase claims device hardware perf battery or store behavior beyond Robolectric evidence
+    violation: FAIL_CLOSED
+
+  - id: CTR-BUDGET
+    kind: CONTRACT
+    label: File budget enforced
+    owner: AUTH-OWNER
+    predicate: VWatcherViewModel.kt ends each mutating phase at or below 1218 lines and no new production file exceeds 500 lines
+    violation: FAIL_CLOSED
+  - id: PH-01
+    kind: PHASE
+    label: '[BUILD/TEST] G1 test harness'
+    initial_state: PENDING
+    required: true
+    mutates: true
+    entry_gates:
+      - T-ENTRY-SUITE
+    exit_gates:
+      - T-EXIT-01
+    forbidden_effects:
+      - NEURAL_MODEL_WIRING
+      - PRODUCTION_MUTATION
+      - STRUCTURAL_REFACTOR
+    rollback_or_recovery: delete added test files under app/src/test
+    claim_ceiling: ViewModel scoring sim quarantine exam paths are pinned by integration tests; no behavior claim beyond L2
+
+  - id: PH-02
+    kind: PHASE
+    label: '[SEMANTIC HONESTY] Honesty microfixes'
+    initial_state: PENDING
+    required: true
+    mutates: true
+    entry_gates:
+      - T-ENTRY-SUITE
+    exit_gates:
+      - T-EXIT-02
+    forbidden_effects:
+      - NEURAL_MODEL_WIRING
+      - NEW_DEPENDENCY
+      - SCOPE_WIDENING
+    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-02
+    claim_ceiling: intent launch semantics isReal semantics and backend mirror are truthful under L2
+
+  - id: PH-03
+    kind: PHASE
+    label: '[INTEGRATION] Homeostasis consumption'
+    initial_state: PENDING
+    required: true
+    mutates: true
+    entry_gates:
+      - T-ENTRY-SUITE
+      - T-EXIT-02
+    exit_gates:
+      - T-EXIT-03
+    forbidden_effects:
+      - ACTUATOR_WIDENING
+      - NEURAL_MODEL_WIRING
+      - NEW_OS_CAPABILITY
+    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-03
+    claim_ceiling: macroState and regulatory outputs gate escalation under L2; no actuation claim
+
+  - id: PH-04
+    kind: PHASE
+    label: '[INTEGRATION] Pipeline fusion'
+    initial_state: PENDING
+    required: true
+    mutates: true
+    entry_gates:
+      - T-ENTRY-SUITE
+      - T-EXIT-03
+    exit_gates:
+      - T-EXIT-04
+    forbidden_effects:
+      - ARTIFICIAL_LINE_REDUCTION
+      - BEHAVIOR_REGRESSION
+      - NET_PRODUCTION_LINE_GROWTH
+      - NEURAL_MODEL_WIRING
+    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-04
+    claim_ceiling: single decision path with single case authority under L2; no perf claim
+
+  - id: PH-05
+    kind: PHASE
+    label: '[SEMANTIC HONESTY] UI claim binding'
+    initial_state: PENDING
+    required: true
+    mutates: true
+    entry_gates:
+      - T-ENTRY-SUITE
+      - T-EXIT-04
+    exit_gates:
+      - T-EXIT-05
+    forbidden_effects:
+      - NEURAL_MODEL_WIRING
+      - NEW_NAVIGATION
+      - NEW_SCREEN
+    rollback_or_recovery: restore snapshot copies under docs/plans/VWATCHER_IMPL_20260912/snapshots/PH-05
+    claim_ceiling: every listed UI string is backend-bound or reworded under L2
+
+  - id: PH-06
+    kind: PHASE
+    label: '[DEVICE VALIDATION] Device validation'
+    initial_state: PENDING
+    required: true
+    mutates: false
+    entry_gates:
+      - T-ENTRY-DEVICE
+      - T-EXIT-05
+    exit_gates:
+      - T-EXIT-06
+    forbidden_effects:
+      - PRODUCTION_MUTATION
+      - SCOPE_WIDENING
+    rollback_or_recovery: no mutation exists; discard device notes on failure
+    claim_ceiling: device observations only; no store submission claim
+
+  - id: PH-CLOSE
+    kind: PHASE
+    label: '[CLOSURE] Cumulative closure'
+    initial_state: PENDING
+    required: true
+    mutates: false
+    entry_gates:
+      - T-EXIT-01
+      - T-EXIT-02
+      - T-EXIT-03
+      - T-EXIT-04
+      - T-EXIT-05
+      - T-EXIT-06
+    exit_gates:
+      - GATE-CLOSE
+    forbidden_effects:
+      - PRODUCTION_MUTATION
+    rollback_or_recovery: no mutation exists; reopen owning phase on gate failure
+    claim_ceiling: plan closure candidacy only; operational closure remains unverified
+
+  - id: T-VM04
+    kind: TARGET
+    label: ViewModel fusion site
+    locator: app/src/main/java/com/example/viewmodel/VWatcherViewModel.kt
+    owner: PH-04
+    allowed_mutation: fuse dual decision entries into the canonical path with net-negative line delta
+
+  - id: T-ORCH04
+    kind: TARGET
+    label: Orchestrator fusion site
+    locator: app/src/main/java/com/example/immune/BiomimeticImmuneSystem.kt
+    owner: PH-04
+    allowed_mutation: subscribe coordination to bus events and consume regulatory outputs
+
+  - id: T-CHAN04
+    kind: TARGET
+    label: Channel collector site
+    locator: app/src/main/java/com/example/communication/CommunicationChannel.kt
+    owner: PH-04
+    allowed_mutation: add ring-buffer collection of emitted flows for observability only
+
+  - id: T-GUARD03
+    kind: TARGET
+    label: Guardrail consumption site
+    locator: app/src/main/java/com/example/reasoning/ResourceGuardrails.kt
+    owner: PH-03
+    allowed_mutation: consume macroState regulatory forceDeterministic and boundary flags in escalation gating
+
+  - id: T-ENG03
+    kind: TARGET
+    label: Engine wiring site
+    locator: app/src/main/java/com/example/reasoning/OnDeviceReasoningEngine.kt
+    owner: PH-03
+    allowed_mutation: route consumed homeostasis signals into admission decisions
+
+  - id: T-BOUND12
+    kind: TARGET
+    label: Boundary honesty site
+    locator: app/src/main/java/com/example/immune/AndroidRealityBoundary.kt
+    owner: PH-02
+    allowed_mutation: launch settings intent or relabel PREPARED for NAVIGATE_APP_SETTINGS
+
+  - id: T-TELE14
+    kind: TARGET
+    label: Telemetry honesty site
+    locator: app/src/main/java/com/example/telemetry/AppUsageProvider.kt and app/src/main/java/com/example/telemetry/DeviceResourceProvider.kt
+    owner: PH-02
+    allowed_mutation: split availability semantics from hardware-reality flag on denied and degraded paths
+
+  - id: T-ENG17
+    kind: TARGET
+    label: Backend mirror fix site
+    locator: app/src/main/java/com/example/reasoning/OnDeviceReasoningEngine.kt lines 105-114
+    owner: PH-02
+    allowed_mutation: mirror computed selection instead of stale state
+
+  - id: T-TESTS
+    kind: TARGET
+    label: Test tree
+    locator: app/src/test/java/com/example
+    owner: PH-01
+    allowed_mutation: add integration tests only; no production files
+
+  - id: T-UI05
+    kind: TARGET
+    label: UI claim sites
+    locator: app/src/main/java/com/example/ui/screens
+    owner: PH-05
+    allowed_mutation: bind the 15 listed strings to backend fields or reword to observed truth
+
+  - id: T-VM05
+    kind: TARGET
+    label: ViewModel copy sites
+    locator: app/src/main/java/com/example/viewmodel/VWatcherViewModel.kt user-visible strings
+    owner: PH-05
+    allowed_mutation: string-only edits backing UI claim binding; no logic change
+
+  - id: T-ENTRY-SUITE
+    kind: TEST
+    label: Suite green entry gate
+    command: ./gradlew testDebugUnitTest
+    environment: Temurin-21.0.12.1+1 AGP-9.1.1 SDK-36 Robolectric
+    boundary: L2 JVM with shadows; not hardware
+    oracle: 30 tests 0 failures 0 errors 0 skipped and BUILD SUCCESSFUL
+
+  - id: T-ENTRY-DEVICE
+    kind: TEST
+    label: Device presence entry probe
+    command: adb devices
+    environment: local toolchain platform-tools
+    boundary: real USB transport inventory only
+    oracle: at least one device in device state; empty output routes PH-06 to WAIT_FOR_UNBLOCK
+
+  - id: T-EXIT-01
+    kind: TEST
+    label: G1 harness exit gate
+    command: ./gradlew testDebugUnitTest --tests "com.example.viewmodel.*" --tests "com.example.petscan.*"
+    environment: Temurin-21.0.12.1+1 AGP-9.1.1 SDK-36 Robolectric
+    boundary: L2 JVM with shadows; synthetic telemetry by copy-mutation documented per test
+    oracle: new scoring fail-closed sim-gating quarantine and clobber tests all PASS plus full suite green
+
+  - id: T-EXIT-02
+    kind: TEST
+    label: Honesty exit gate
+    command: ./gradlew testDebugUnitTest --tests "com.example.honesty.*"
+    environment: Temurin-21.0.12.1+1 AGP-9.1.1 SDK-36 Robolectric
+    boundary: L2 JVM; intent launch verified via shadow activity introspection
+    oracle: intent-sent-or-PREPARED isReal split and backend mirror tests PASS plus full suite green
+
+  - id: T-EXIT-03
+    kind: TEST
+    label: Consumption exit gate
+    command: ./gradlew testDebugUnitTest --tests "com.example.consumption.*"
+    environment: Temurin-21.0.12.1+1 AGP-9.1.1 SDK-36 Robolectric
+    boundary: L2 JVM; escalation gating observed through router selection
+    oracle: macroState veto forceDeterministic cooldown and flag-reader tests PASS plus full suite green
+
+  - id: T-EXIT-04
+    kind: TEST
+    label: Fusion exit gate
+    command: ./gradlew testDebugUnitTest && wc -l app/src/main/java/com/example/viewmodel/VWatcherViewModel.kt
+    environment: Temurin-21.0.12.1+1 AGP-9.1.1 SDK-36 Robolectric
+    boundary: L2 JVM; trace harness rerun compares pre and post event sequences
+    oracle: single case authority and single reasoning entry asserted PASS suite green and ViewModel at or below 1218 lines
+
+  - id: T-EXIT-05
+    kind: TEST
+    label: UI binding exit gate
+    command: ./gradlew testDebugUnitTest --tests "com.example.uibinding.*"
+    environment: Temurin-21.0.12.1+1 AGP-9.1.1 SDK-36 Robolectric
+    boundary: L2 JVM with Compose semantics; no screenshot claims
+    oracle: each of the 15 strings is backend-bound or reworded with per-string test PASS plus full suite green
+
+  - id: T-EXIT-06
+    kind: TEST
+    label: Device evidence exit gate
+    command: device checklist execution recorded in A-06
+    environment: physical Android device with AICore-capable hardware when available
+    boundary: real hardware; operator-witnessed
+    oracle: Nano states download warmup latency quota plus perf battery Doze notes recorded with unblock evidence for missing pieces
+
+  - id: GATE-CLOSE
+    kind: GATE
+    label: Cumulative closure gate
+    inputs:
+      - T-EXIT-01
+      - T-EXIT-02
+      - T-EXIT-03
+      - T-EXIT-04
+      - T-EXIT-05
+      - T-EXIT-06
+    oracle: ALL_PASS over fresh typed PASS evidence for every input plus SOT re-verification notes
+
+  - id: A-01
+    kind: ARTIFACT
+    label: G1 harness tests
+    locator: app/src/test/java/com/example/viewmodel/ViewModelHarnessTest.kt
+    media_type: text/x-kotlin
+    retention: permanent
+    state: PLANNED
+    expected_sha256: null
+    observed_at: null
+
+  - id: A-02
+    kind: ARTIFACT
+    label: Honesty tests
+    locator: app/src/test/java/com/example/honesty/HonestyTest.kt
+    media_type: text/x-kotlin
+    retention: permanent
+    state: PLANNED
+    expected_sha256: null
+    observed_at: null
+
+  - id: A-03
+    kind: ARTIFACT
+    label: Consumption tests
+    locator: app/src/test/java/com/example/consumption/ConsumptionTest.kt
+    media_type: text/x-kotlin
+    retention: permanent
+    state: PLANNED
+    expected_sha256: null
+    observed_at: null
+
+  - id: A-04
+    kind: ARTIFACT
+    label: Fusion tests and snapshots
+    locator: app/src/test/java/com/example/fusion/FusionTest.kt
+    media_type: text/plain
+    retention: permanent
+    state: PLANNED
+    expected_sha256: null
+    observed_at: null
+
+  - id: A-05
+    kind: ARTIFACT
+    label: UI binding tests
+    locator: app/src/test/java/com/example/uibinding/UiBindingTest.kt
+    media_type: text/x-kotlin
+    retention: permanent
+    state: PLANNED
+    expected_sha256: null
+    observed_at: null
+
+  - id: A-06
+    kind: ARTIFACT
+    label: Device evidence notes
+    locator: docs/plans/VWATCHER_IMPL_20260912/evidence/DEVICE_NOTES.md
+    media_type: text/markdown
+    retention: permanent
+    state: PLANNED
+    expected_sha256: null
+    observed_at: null
+
+  - id: P-SOT
+    kind: ARTIFACT
+    label: Preexisting unified SOT
+    locator: sources/SOT.md
+    media_type: text/markdown
+    retention: permanent
+    state: PREEXISTING
+    expected_sha256: 4b2359ebd23231a0efd586c874c9de39a7a2b5eed9a653a9e154e9c948dce555
+    observed_at: "2026-09-12T19:38:28Z"
+
+  - id: P-TRACE
+    kind: ARTIFACT
+    label: Preexisting trace harness
+    locator: sources/TRACE_HARNESS.kt
+    media_type: text/x-kotlin
+    retention: permanent
+    state: PREEXISTING
+    expected_sha256: 3dd79cdd41de30ed9790c0b95585fa320b7fbcf24a69dc004419c80cead82367
+    observed_at: "2026-09-12T19:38:28Z"
+
+  - id: C-01
+    kind: CLAIM
+    label: Harness claim
+    statement: ViewModel decision paths are pinned by integration tests under L2
+    claim_ceiling: L2 test protection only; no behavior-change claim
+    limitations:
+      - shadows not hardware
+
+  - id: C-02
+    kind: CLAIM
+    label: Honesty claim
+    statement: intent launch semantics isReal semantics and backend mirror match observed truth under L2
+    claim_ceiling: L2 behavioral truth only; no device claim
+    limitations:
+      - intent shadow introspection only
+
+  - id: C-03
+    kind: CLAIM
+    label: Consumption claim
+    statement: homeostasis and regulatory outputs gate escalation with asserted tests under L2
+    claim_ceiling: L2 gating only; no actuation claim
+    limitations:
+      - no OS enforcement involved
+
+  - id: C-04
+    kind: CLAIM
+    label: Fusion claim
+    statement: one decision path with one case authority and preserved fallback under L2
+    claim_ceiling: L2 integration only; no perf claim
+    limitations:
+      - trace-sequence comparison only
+
+  - id: C-05
+    kind: CLAIM
+    label: UI truth claim
+    statement: listed UI strings are backend-bound or reworded with per-string tests under L2
+    claim_ceiling: L2 binding only; no store-copy claim
+    limitations:
+      - semantics assertions not screenshots
+
+  - id: C-06
+    kind: CLAIM
+    label: Device observation claim
+    statement: Nano states latency quota and device posture recorded with named unblock evidence for gaps
+    claim_ceiling: device observations only; no submission claim
+    limitations:
+      - hardware-dependent; likely partial
+
+  - id: EXT-DEVICE
+    kind: EXTERNAL_DEPENDENCY
+    label: Physical Android device access
+    owner: human-operator
+    blocked_condition_oracle_ref: T-ENTRY-DEVICE
+    unblock_oracle_ref: T-ENTRY-DEVICE
+    freshness_rule: INVALIDATE_IF_DEVICE_FINGERPRINT_CHANGES
+edges:
+  - {id: E-S01, kind: SOURCED_BY, from: FACT-SUITE30, to: SRC-TRACE}
+  - {id: E-S02, kind: SOURCED_BY, from: FACT-SUITE30, to: SRC-SOT}
+  - {id: E-S03, kind: SOURCED_BY, from: FACT-TRACE2X, to: SRC-TRACE}
+  - {id: E-S04, kind: SOURCED_BY, from: FACT-TRACE2X, to: SRC-SOT}
+  - {id: E-S05, kind: SOURCED_BY, from: FACT-AAB, to: SRC-AAB}
+  - {id: E-S05b, kind: SOURCED_BY, from: FACT-AAB, to: SRC-SOT}
+  - {id: E-S06, kind: SOURCED_BY, from: FACT-VM1218, to: SRC-SOT}
+  - {id: E-S11, kind: SOURCED_BY, from: GAP-G1, to: SRC-SOT}
+  - {id: E-S12, kind: SOURCED_BY, from: GAP-G2, to: SRC-SOT}
+  - {id: E-S13, kind: SOURCED_BY, from: GAP-G2, to: SRC-RECON}
+  - {id: E-S14, kind: SOURCED_BY, from: GAP-G3, to: SRC-SOT}
+  - {id: E-S15, kind: SOURCED_BY, from: GAP-G3, to: SRC-RECON}
+  - {id: E-S16, kind: SOURCED_BY, from: GAP-G6, to: SRC-SOT}
+  - {id: E-S17, kind: SOURCED_BY, from: GAP-G7, to: SRC-SOT}
+  - {id: E-S18, kind: SOURCED_BY, from: GAP-G12, to: SRC-SOT}
+  - {id: E-S19, kind: SOURCED_BY, from: GAP-G13, to: SRC-SOT}
+  - {id: E-S20, kind: SOURCED_BY, from: GAP-G14, to: SRC-SOT}
+  - {id: E-S21, kind: SOURCED_BY, from: GAP-G14, to: SRC-RECON}
+  - {id: E-S22, kind: SOURCED_BY, from: GAP-G17, to: SRC-SOT}
+  - {id: E-S23, kind: SOURCED_BY, from: GAP-G18, to: SRC-SOT}
+  - {id: E-S24, kind: SOURCED_BY, from: GAP-G19, to: SRC-SOT}
+  - {id: E-S25, kind: SOURCED_BY, from: GAP-G21, to: SRC-RECON}
+  - {id: E-S26, kind: SOURCED_BY, from: DEC-FUSION, to: SRC-SOT}
+  - {id: E-S27, kind: SOURCED_BY, from: DEC-HOMEO, to: SRC-SOT}
+  - {id: E-S28, kind: SOURCED_BY, from: DEC-HOMEO, to: SRC-THRESH}
+  - {id: E-S29, kind: SOURCED_BY, from: DEC-FLAGS, to: SRC-RECON}
+  - {id: E-O01, kind: OWNED_BY, from: GAP-G1, to: PH-01}
+  - {id: E-O02, kind: OWNED_BY, from: GAP-G12, to: PH-02}
+  - {id: E-O03, kind: OWNED_BY, from: GAP-G14, to: PH-02}
+  - {id: E-O04, kind: OWNED_BY, from: GAP-G17, to: PH-02}
+  - {id: E-O05, kind: OWNED_BY, from: GAP-G2, to: PH-03}
+  - {id: E-O06, kind: OWNED_BY, from: GAP-G7, to: PH-03}
+  - {id: E-O07, kind: OWNED_BY, from: GAP-G21, to: PH-03}
+  - {id: E-O08, kind: OWNED_BY, from: GAP-G3, to: PH-04}
+  - {id: E-O09, kind: OWNED_BY, from: GAP-G6, to: PH-04}
+  - {id: E-O10, kind: OWNED_BY, from: GAP-G13, to: PH-05}
+  - {id: E-O11, kind: OWNED_BY, from: GAP-G18, to: PH-06}
+  - {id: E-O12, kind: OWNED_BY, from: GAP-G19, to: PH-06}
+  - {id: E-A01, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-01}
+  - {id: E-A02, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-02}
+  - {id: E-A03, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-03}
+  - {id: E-A04, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-04}
+  - {id: E-A05, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-05}
+  - {id: E-A06, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-06}
+  - {id: E-A07, kind: AUTHORIZES, from: AUTH-OWNER, to: PH-CLOSE}
+  - {id: E-A08, kind: AUTHORIZES, from: AUTH-OWNER, to: T-TESTS}
+  - {id: E-A09, kind: AUTHORIZES, from: AUTH-OWNER, to: T-BOUND12}
+  - {id: E-A10, kind: AUTHORIZES, from: AUTH-OWNER, to: T-TELE14}
+  - {id: E-A11, kind: AUTHORIZES, from: AUTH-OWNER, to: T-ENG17}
+  - {id: E-A12, kind: AUTHORIZES, from: AUTH-OWNER, to: T-GUARD03}
+  - {id: E-A13, kind: AUTHORIZES, from: AUTH-OWNER, to: T-ENG03}
+  - {id: E-A14, kind: AUTHORIZES, from: AUTH-OWNER, to: T-VM04}
+  - {id: E-A15, kind: AUTHORIZES, from: AUTH-OWNER, to: T-ORCH04}
+  - {id: E-A16, kind: AUTHORIZES, from: AUTH-OWNER, to: T-CHAN04}
+  - {id: E-A17, kind: AUTHORIZES, from: AUTH-OWNER, to: T-UI05}
+  - {id: E-A18, kind: AUTHORIZES, from: AUTH-OWNER, to: T-VM05}
+  - {id: E-I01, kind: IMPLEMENTS, from: PH-01, to: CTR-NO-MOCK}
+  - {id: E-I02, kind: IMPLEMENTS, from: PH-01, to: CTR-CEILING-L2}
+  - {id: E-I03, kind: IMPLEMENTS, from: PH-02, to: CTR-NO-MOCK}
+  - {id: E-I04, kind: IMPLEMENTS, from: PH-02, to: CTR-CEILING-L2}
+  - {id: E-I05, kind: IMPLEMENTS, from: PH-02, to: CTR-FAIL-CLOSED}
+  - {id: E-I06, kind: IMPLEMENTS, from: PH-03, to: CTR-NO-MOCK}
+  - {id: E-I07, kind: IMPLEMENTS, from: PH-03, to: CTR-CEILING-L2}
+  - {id: E-I08, kind: IMPLEMENTS, from: PH-03, to: CTR-FAIL-CLOSED}
+  - {id: E-I09, kind: IMPLEMENTS, from: PH-04, to: CTR-NO-MOCK}
+  - {id: E-I10, kind: IMPLEMENTS, from: PH-04, to: CTR-CEILING-L2}
+  - {id: E-I11, kind: IMPLEMENTS, from: PH-04, to: CTR-FAIL-CLOSED}
+  - {id: E-I12, kind: IMPLEMENTS, from: PH-04, to: CTR-BUDGET}
+  - {id: E-I13, kind: IMPLEMENTS, from: PH-05, to: CTR-NO-MOCK}
+  - {id: E-I14, kind: IMPLEMENTS, from: PH-05, to: CTR-CEILING-L2}
+  - {id: E-I15, kind: IMPLEMENTS, from: PH-06, to: CTR-CEILING-L2}
+  - {id: E-M01, kind: MUTATES, from: PH-01, to: T-TESTS}
+  - {id: E-M02, kind: MUTATES, from: PH-02, to: T-BOUND12}
+  - {id: E-M03, kind: MUTATES, from: PH-02, to: T-TELE14}
+  - {id: E-M04, kind: MUTATES, from: PH-02, to: T-ENG17}
+  - {id: E-M05, kind: MUTATES, from: PH-03, to: T-GUARD03}
+  - {id: E-M06, kind: MUTATES, from: PH-03, to: T-ENG03}
+  - {id: E-M07, kind: MUTATES, from: PH-04, to: T-VM04}
+  - {id: E-M08, kind: MUTATES, from: PH-04, to: T-ORCH04}
+  - {id: E-M09, kind: MUTATES, from: PH-04, to: T-CHAN04}
+  - {id: E-M10, kind: MUTATES, from: PH-05, to: T-UI05}
+  - {id: E-M11, kind: MUTATES, from: PH-05, to: T-VM05}
+  - {id: E-V01, kind: VERIFIED_BY, from: PH-01, to: T-ENTRY-SUITE}
+  - {id: E-V02, kind: VERIFIED_BY, from: PH-01, to: T-EXIT-01}
+  - {id: E-V03, kind: VERIFIED_BY, from: PH-02, to: T-ENTRY-SUITE}
+  - {id: E-V04, kind: VERIFIED_BY, from: PH-02, to: T-EXIT-02}
+  - {id: E-V05, kind: VERIFIED_BY, from: PH-03, to: T-ENTRY-SUITE}
+  - {id: E-V06, kind: VERIFIED_BY, from: PH-03, to: T-EXIT-03}
+  - {id: E-V06b, kind: VERIFIED_BY, from: PH-03, to: T-EXIT-02}
+  - {id: E-V07, kind: VERIFIED_BY, from: PH-04, to: T-ENTRY-SUITE}
+  - {id: E-V08, kind: VERIFIED_BY, from: PH-04, to: T-EXIT-01}
+  - {id: E-V09, kind: VERIFIED_BY, from: PH-04, to: T-EXIT-04}
+  - {id: E-V09b, kind: VERIFIED_BY, from: PH-04, to: T-EXIT-03}
+  - {id: E-V10, kind: VERIFIED_BY, from: PH-05, to: T-ENTRY-SUITE}
+  - {id: E-V11, kind: VERIFIED_BY, from: PH-05, to: T-EXIT-01}
+  - {id: E-V12, kind: VERIFIED_BY, from: PH-05, to: T-EXIT-05}
+  - {id: E-V12b, kind: VERIFIED_BY, from: PH-05, to: T-EXIT-04}
+  - {id: E-V13, kind: VERIFIED_BY, from: PH-06, to: T-ENTRY-DEVICE}
+  - {id: E-V14, kind: VERIFIED_BY, from: PH-06, to: T-EXIT-05}
+  - {id: E-V15, kind: VERIFIED_BY, from: PH-06, to: T-EXIT-06}
+  - {id: E-V16, kind: VERIFIED_BY, from: PH-CLOSE, to: GATE-CLOSE}
+  - {id: E-V17, kind: VERIFIED_BY, from: CTR-NO-MOCK, to: T-EXIT-01}
+  - {id: E-V18, kind: VERIFIED_BY, from: CTR-FAIL-CLOSED, to: T-EXIT-04}
+  - {id: E-V19, kind: VERIFIED_BY, from: CTR-CEILING-L2, to: T-EXIT-06}
+  - {id: E-V20, kind: VERIFIED_BY, from: CTR-BUDGET, to: T-EXIT-04}
+  - {id: E-V21, kind: VERIFIED_BY, from: C-01, to: GATE-CLOSE}
+  - {id: E-V22, kind: VERIFIED_BY, from: C-02, to: GATE-CLOSE}
+  - {id: E-V23, kind: VERIFIED_BY, from: C-03, to: GATE-CLOSE}
+  - {id: E-V24, kind: VERIFIED_BY, from: C-04, to: GATE-CLOSE}
+  - {id: E-V25, kind: VERIFIED_BY, from: C-05, to: GATE-CLOSE}
+  - {id: E-V26, kind: VERIFIED_BY, from: C-06, to: GATE-CLOSE}
+  - {id: E-P01, kind: PRODUCES, from: PH-01, to: A-01}
+  - {id: E-P02, kind: PRODUCES, from: PH-02, to: A-02}
+  - {id: E-P03, kind: PRODUCES, from: PH-03, to: A-03}
+  - {id: E-P04, kind: PRODUCES, from: PH-04, to: A-04}
+  - {id: E-P05, kind: PRODUCES, from: PH-05, to: A-05}
+  - {id: E-P06, kind: PRODUCES, from: PH-06, to: A-06}
+  - {id: E-C01, kind: CONSUMES, from: PH-01, to: P-SOT}
+  - {id: E-C02, kind: CONSUMES, from: PH-02, to: P-SOT}
+  - {id: E-C03, kind: CONSUMES, from: PH-03, to: P-SOT}
+  - {id: E-C04, kind: CONSUMES, from: PH-04, to: P-SOT}
+  - {id: E-C05, kind: CONSUMES, from: PH-05, to: P-SOT}
+  - {id: E-C06, kind: CONSUMES, from: PH-06, to: P-SOT}
+  - {id: E-C07, kind: CONSUMES, from: PH-01, to: P-TRACE}
+  - {id: E-U01, kind: SUPPORTS, from: FACT-SUITE30, to: C-01}
+  - {id: E-U02, kind: SUPPORTS, from: A-01, to: C-01}
+  - {id: E-U03, kind: SUPPORTS, from: FACT-SUITE30, to: C-02}
+  - {id: E-U04, kind: SUPPORTS, from: A-02, to: C-02}
+  - {id: E-U05, kind: SUPPORTS, from: FACT-TRACE2X, to: C-03}
+  - {id: E-U06, kind: SUPPORTS, from: A-03, to: C-03}
+  - {id: E-U08, kind: SUPPORTS, from: FACT-TRACE2X, to: C-04}
+  - {id: E-U09, kind: SUPPORTS, from: A-04, to: C-04}
+  - {id: E-U10, kind: SUPPORTS, from: FACT-SUITE30, to: C-05}
+  - {id: E-U11, kind: SUPPORTS, from: A-05, to: C-05}
+  - {id: E-U12, kind: SUPPORTS, from: FACT-AAB, to: C-06}
+  - {id: E-U13, kind: SUPPORTS, from: A-06, to: C-06}
+  - {id: E-D01, kind: DEPENDS_ON, from: PH-02, to: PH-01}
+  - {id: E-D02, kind: DEPENDS_ON, from: PH-03, to: PH-02}
+  - {id: E-D03, kind: DEPENDS_ON, from: PH-04, to: PH-03}
+  - {id: E-D04, kind: DEPENDS_ON, from: PH-05, to: PH-04}
+  - {id: E-D05, kind: DEPENDS_ON, from: PH-06, to: PH-02}
+  - {id: E-D06, kind: DEPENDS_ON, from: PH-06, to: PH-03}
+  - {id: E-D07, kind: DEPENDS_ON, from: PH-06, to: PH-04}
+  - {id: E-D08, kind: DEPENDS_ON, from: PH-06, to: PH-05}
+  - {id: E-D09, kind: DEPENDS_ON, from: PH-CLOSE, to: PH-01}
+  - {id: E-D10, kind: DEPENDS_ON, from: PH-CLOSE, to: PH-02}
+  - {id: E-D11, kind: DEPENDS_ON, from: PH-CLOSE, to: PH-03}
+  - {id: E-D12, kind: DEPENDS_ON, from: PH-CLOSE, to: PH-04}
+  - {id: E-D13, kind: DEPENDS_ON, from: PH-CLOSE, to: PH-05}
+  - {id: E-D14, kind: DEPENDS_ON, from: PH-CLOSE, to: PH-06}
+  - {id: E-B01, kind: BLOCKED_BY, from: PH-06, to: EXT-DEVICE}
+  - {id: E-G01, kind: CLOSES, from: GATE-CLOSE, to: GAP-G1}
+  - {id: E-G02, kind: CLOSES, from: GATE-CLOSE, to: GAP-G2}
+  - {id: E-G03, kind: CLOSES, from: GATE-CLOSE, to: GAP-G3}
+  - {id: E-G04, kind: CLOSES, from: GATE-CLOSE, to: GAP-G6}
+  - {id: E-G05, kind: CLOSES, from: GATE-CLOSE, to: GAP-G7}
+  - {id: E-G06, kind: CLOSES, from: GATE-CLOSE, to: GAP-G12}
+  - {id: E-G07, kind: CLOSES, from: GATE-CLOSE, to: GAP-G13}
+  - {id: E-G08, kind: CLOSES, from: GATE-CLOSE, to: GAP-G14}
+  - {id: E-G09, kind: CLOSES, from: GATE-CLOSE, to: GAP-G17}
+  - {id: E-G10, kind: CLOSES, from: GATE-CLOSE, to: GAP-G18}
+  - {id: E-G11, kind: CLOSES, from: GATE-CLOSE, to: GAP-G19}
+  - {id: E-G12, kind: CLOSES, from: GATE-CLOSE, to: GAP-G21}

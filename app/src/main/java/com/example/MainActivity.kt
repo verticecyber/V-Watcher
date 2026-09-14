@@ -1,0 +1,242 @@
+package com.example
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ui.screens.*
+import com.example.ui.theme.*
+import com.example.viewmodel.VWatcherViewModel
+
+class MainActivity : ComponentActivity() {
+
+  private val viewModel: VWatcherViewModel by viewModels()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    enableEdgeToEdge()
+    setContent {
+      MyApplicationTheme {
+        VWatcherApp(viewModel = viewModel)
+      }
+    }
+  }
+}
+
+@Composable
+fun VWatcherApp(
+  viewModel: VWatcherViewModel,
+  modifier: Modifier = Modifier
+) {
+  val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  var currentTab by remember { mutableStateOf("HOME") }
+  var isDiagnosticsOpen by remember { mutableStateOf(false) }
+  var isNotificationsOpen by remember { mutableStateOf(false) }
+
+  // Interactive Examination Dialog (Routine Check)
+  if (uiState.isExamInProgress) {
+    ExamProgressDialog(
+      currentStep = uiState.currentExamStep,
+      progressFloat = uiState.examProgressFloat,
+      healthScore = uiState.healthScore,
+      doctorSummary = uiState.doctorClinicalNote,
+      onDismiss = { viewModel.dismissExamDialog() }
+    )
+  }
+
+  // Clinical Notifications Bottom Sheet
+  if (isNotificationsOpen) {
+    SimulatedNotificationsSheet(
+      notifications = uiState.notifications,
+      onDismiss = { isNotificationsOpen = false }
+    )
+  }
+
+  if (isDiagnosticsOpen) {
+    DiagnosticScreen(
+      deviceState = uiState.deviceState,
+      onBack = { isDiagnosticsOpen = false },
+      onRefreshTelemetry = { viewModel.refreshRealTelemetry() }
+    )
+  } else {
+    Scaffold(
+      containerColor = ClinicalBackground,
+      contentWindowInsets = WindowInsets.systemBars,
+      bottomBar = {
+        NavigationBar(
+          containerColor = ClinicalSurface,
+          contentColor = MedicalBluePrimary,
+          tonalElevation = 6.dp,
+          modifier = Modifier.testTag("bottom_nav_bar")
+        ) {
+          NavigationBarItem(
+            selected = currentTab == "HOME",
+            onClick = { currentTab = "HOME" },
+            icon = {
+              Icon(
+                imageVector = if (currentTab == "HOME") Icons.Filled.HealthAndSafety else Icons.Outlined.HealthAndSafety,
+                contentDescription = "Home"
+              )
+            },
+            label = { Text("Home", fontSize = 11.sp, fontWeight = if (currentTab == "HOME") FontWeight.Bold else FontWeight.Normal) },
+            colors = NavigationBarItemDefaults.colors(
+              selectedIconColor = MedicalBluePrimary,
+              selectedTextColor = MedicalBluePrimary,
+              indicatorColor = MedicalBlueLight
+            ),
+            modifier = Modifier.testTag("nav_home")
+          )
+
+          NavigationBarItem(
+            selected = currentTab == "HEALTH",
+            onClick = { currentTab = "HEALTH" },
+            icon = {
+              Icon(
+                imageVector = if (currentTab == "HEALTH") Icons.Filled.FactCheck else Icons.Outlined.FactCheck,
+                contentDescription = "Health & Exam"
+              )
+            },
+            label = { Text("Exam", fontSize = 11.sp, fontWeight = if (currentTab == "HEALTH") FontWeight.Bold else FontWeight.Normal) },
+            colors = NavigationBarItemDefaults.colors(
+              selectedIconColor = MedicalBluePrimary,
+              selectedTextColor = MedicalBluePrimary,
+              indicatorColor = MedicalBlueLight
+            ),
+            modifier = Modifier.testTag("nav_health")
+          )
+
+          NavigationBarItem(
+            selected = currentTab == "CASES",
+            onClick = { currentTab = "CASES" },
+            icon = {
+              BadgedBox(
+                badge = {
+                  val activeCount = uiState.cases.count { it.status != com.example.model.CaseStatus.RESOLVED }
+                  if (activeCount > 0) {
+                    Badge(containerColor = ClinicalCoralCritical) {
+                      Text("$activeCount", color = Color.White)
+                    }
+                  }
+                }
+              ) {
+                Icon(
+                  imageVector = if (currentTab == "CASES") Icons.Filled.Assignment else Icons.Outlined.Assignment,
+                  contentDescription = "Cases"
+                )
+              }
+            },
+            label = { Text("Cases", fontSize = 11.sp, fontWeight = if (currentTab == "CASES") FontWeight.Bold else FontWeight.Normal) },
+            colors = NavigationBarItemDefaults.colors(
+              selectedIconColor = MedicalBluePrimary,
+              selectedTextColor = MedicalBluePrimary,
+              indicatorColor = MedicalBlueLight
+            ),
+            modifier = Modifier.testTag("nav_cases")
+          )
+
+          NavigationBarItem(
+            selected = currentTab == "IMMUNE",
+            onClick = { currentTab = "IMMUNE" },
+            icon = {
+              Icon(
+                imageVector = if (currentTab == "IMMUNE") Icons.Filled.Biotech else Icons.Outlined.Biotech,
+                contentDescription = "Immune"
+              )
+            },
+            label = { Text("Immune", fontSize = 11.sp, fontWeight = if (currentTab == "IMMUNE") FontWeight.Bold else FontWeight.Normal) },
+            colors = NavigationBarItemDefaults.colors(
+              selectedIconColor = MedicalBluePrimary,
+              selectedTextColor = MedicalBluePrimary,
+              indicatorColor = MedicalBlueLight
+            ),
+            modifier = Modifier.testTag("nav_immune")
+          )
+
+          NavigationBarItem(
+            selected = currentTab == "MEMORY",
+            onClick = { currentTab = "MEMORY" },
+            icon = {
+              Icon(
+                imageVector = if (currentTab == "MEMORY") Icons.Filled.Psychology else Icons.Outlined.Psychology,
+                contentDescription = "Memory"
+              )
+            },
+            label = { Text("Memory", fontSize = 11.sp, fontWeight = if (currentTab == "MEMORY") FontWeight.Bold else FontWeight.Normal) },
+            colors = NavigationBarItemDefaults.colors(
+              selectedIconColor = MemoryLavender,
+              selectedTextColor = MemoryLavender,
+              indicatorColor = MemoryLavenderLight
+            ),
+            modifier = Modifier.testTag("nav_memory")
+          )
+        }
+      },
+      modifier = modifier.fillMaxSize()
+    ) { innerPadding ->
+      Box(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(innerPadding)
+      ) {
+        when (currentTab) {
+          "HOME" -> HomeScreen(
+            uiState = uiState,
+            onRunCheck = { viewModel.runDeviceCheck() },
+            onSimulateAnomaly = { viewModel.simulateUnusualActivity() },
+            onNavigateToTab = { currentTab = it },
+            onOpenNotifications = { isNotificationsOpen = true },
+            onOpenDiagnostics = { isDiagnosticsOpen = true }
+          )
+
+          "HEALTH" -> HealthExamScreen(
+            uiState = uiState,
+            onIsolateApp = { viewModel.isolateApp(it) },
+            onReleaseApp = { viewModel.releaseApp(it) }
+          )
+
+          "CASES" -> CasesScreen(
+            uiState = uiState,
+            onResolveCase = { viewModel.resolveCase(it) },
+            onReleaseAppByName = { name ->
+              val app = uiState.applications.find { it.name == name }
+              if (app != null) viewModel.releaseApp(app.id)
+            }
+          )
+
+          "IMMUNE" -> ImmuneSystemScreen(
+            uiState = uiState,
+            onNavigateToNetwork = { currentTab = "HEALTH" }
+          )
+
+          "MEMORY" -> MemoryScreen(
+            uiState = uiState
+          )
+        }
+      }
+    }
+  }
+}
+
+// Retained for test compatibility & preview
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+  Text(text = "Hello $name!", modifier = modifier)
+}

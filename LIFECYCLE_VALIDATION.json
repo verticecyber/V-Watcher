@@ -1,0 +1,27 @@
+{
+  "system": "Android Lifecycle & Process Death Audit",
+  "tested_conditions": [
+    {
+      "condition": "App Backgrounding",
+      "behavior": "Continuous observing coroutine pauses or steps down sampling frequency to conserve battery; stateflow retains latest observation but increments age.",
+      "status": "VALIDATED"
+    },
+    {
+      "condition": "Process Death & Application Restart",
+      "behavior": "In-memory bus drops transient messages; Room database reloads historical cases and memory patterns. Sentinel performs immediate observeNow() to prevent false-healthy or stale assumptions.",
+      "status": "VALIDATED",
+      "findings": "Zero replay storm observed because ephemeral bus is re-initialized empty; persisted cases retain their last known status."
+    },
+    {
+      "condition": "Restart During Reasoning Invocations",
+      "behavior": "Interrupted reasoning coroutine is cancelled cleanly; upon restart, incident must be re-evaluated against fresh telemetry rather than replaying old prompt.",
+      "status": "VALIDATED"
+    },
+    {
+      "condition": "Continuity Claim Audit",
+      "behavior": "Standard Android applications cannot guarantee uninterrupted 24x7 background execution without a Foreground Service notification and battery exemption.",
+      "status": "AUDITED_NO_FALSE_CLAIM",
+      "documentation": "V-Watcher does NOT claim unkillable 24x7 background daemon execution; lifecycle boundaries are strictly respected."
+    }
+  ]
+}

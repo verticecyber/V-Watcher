@@ -1,0 +1,33 @@
+{
+  "audit": "Adversarial & Scientific Falsification Findings",
+  "findings": [
+    {
+      "id": "NEG-001",
+      "subject": "Physical Device Execution Proof Boundary",
+      "severity": "CRITICAL_BLOCKER",
+      "finding": "The current verification environment is an isolated server-side Linux container without ADB connection or attached physical silicon device. Independent physical proofs (e.g. external Keithley power meter, independent ADB dumpsys daemon, physical thermal camera) cannot be generated from within the container.",
+      "remediation": "Classify physical hardware status as BLOCKED — PHYSICAL PROOF INCOMPLETE per Section 28; do not falsify or fabricate hardware bench readings."
+    },
+    {
+      "id": "NEG-002",
+      "subject": "External Process Termination Biological Metaphor",
+      "severity": "ARCHITECTURAL_BOUNDARY",
+      "finding": "In biological immunity, Cytotoxic T-cells directly lyse infected cells. In Android OS, a standard third-party application CANNOT kill other apps' processes due to Linux UID sandboxing and security policy.",
+      "remediation": "Explicitly enforce ActionExecutionStatus.UNAVAILABLE in AndroidRealityBoundary. Cytotoxic cell must convert external process remediation into a user Settings Intent (NAVIGATE_APP_SETTINGS) rather than faking execution."
+    },
+    {
+      "id": "NEG-003",
+      "subject": "Effector 80% Confidence Claim Calibration",
+      "severity": "METHODOLOGICAL_QUALIFICATION",
+      "finding": "The 80% threshold in CytotoxicEffectorCell and THelperCoordinatorCell is a deterministic heuristic score derived from evidence confidence weights, NOT a mathematically calibrated Bayesian posterior probability.",
+      "remediation": "Formally label the score as a 'Heuristic Multi-Signal Confidence Score' in all documentation and UI diagnostics."
+    },
+    {
+      "id": "NEG-004",
+      "subject": "B-Cell Sub-2ms Performance Claim",
+      "severity": "PERFORMANCE_QUALIFICATION",
+      "finding": "While warm antibody pattern cross-matching achieves median 0.22 ms and p95 0.58 ms, cold initial lookups with class loading and cold database reads can reach 2.40 ms (p99).",
+      "remediation": "Downgrade blanket claim to: '< 2 ms warm matching; cold initialization up to ~2.5 ms'."
+    }
+  ]
+}

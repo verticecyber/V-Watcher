@@ -1,0 +1,36 @@
+{
+  "experiment": "AUTOIMMUNE_SUPPRESSION_AND_SELF_STRESS_CONTAINMENT",
+  "hypothesis": "When high-frequency immune agent activity, excessive reasoning calls, or runaway message bursts threaten device battery and memory, RegulatoryTCell intervenes to throttle effectors, force deterministic fallback, and restore physiological equilibrium.",
+  "control": "Basal state with 0 active incidents, 75% battery, 1200MB available RAM, bus rate < 1.0 msg/sec.",
+  "perturbation": "Simulated immune self-stress: 35 rapid inter-cell message dispatches, concurrent multi-effector recruitment requests, battery level forced to 10% (discharging).",
+  "independent_variables": [
+    "Battery state (10% discharging vs 80% charging)",
+    "Available memory (90MB critical vs 1200MB free)",
+    "Immune bus dispatch rate (35 msg/sec vs 1.2 msg/sec)",
+    "Consecutive escalation frequency (< 5 sec window)"
+  ],
+  "dependent_variables": [
+    "RegulatoryTCell.evaluateEscalationRequest() permit status (true/false)",
+    "forceDeterministic flag (true/false)",
+    "Total veto count increment",
+    "Macrophage scavenger recruitment (triggered on memory distress)"
+  ],
+  "results": {
+    "battery_exhaustion_test": {
+      "input": {"battery_pct": 10, "is_discharging": true, "available_mem_mb": 1200},
+      "observed": {"is_permitted": false, "force_deterministic": true, "reason": "Battery critical (10%) and discharging. Suppressing high-energy reasoning."},
+      "result": "PASSED_REGULATORY_INTERVENTION"
+    },
+    "memory_exhaustion_test": {
+      "input": {"battery_pct": 65, "is_discharging": false, "available_mem_mb": 90},
+      "observed": {"is_permitted": false, "force_deterministic": true, "reason": "Host memory severely constrained (90 MB free). Suppressing effector expansion."},
+      "result": "PASSED_REGULATORY_INTERVENTION"
+    },
+    "rapid_consecutive_storm_test": {
+      "input": {"rapid_burst_count": 35, "time_delta_ms": 150},
+      "observed": {"is_permitted": false, "force_deterministic": true, "reason": "Regulatory cooldown active: minimum inter-escalation gap not met (30000ms)."},
+      "result": "PASSED_REGULATORY_INTERVENTION"
+    }
+  },
+  "observable_host_effect": "Device remains healthier after regulation: zero additional background coroutine allocations, expensive LLM calls completely blocked, and Macrophage cache reclamation triggers automatically."
+}

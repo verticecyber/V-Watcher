@@ -1,0 +1,6 @@
+{
+  "name": "V-Watcher",
+  "description": "Your phone's immune system – an agentic, clinical-grade behavioral device defense and monitoring application.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
