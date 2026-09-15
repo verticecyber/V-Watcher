@@ -72,7 +72,7 @@ class LocalImmuneMemoryRepository(private val context: Context) {
         typicalResponse = "Allow",
         confidenceScore = "Very High (99%)",
         description = "Large contiguous file read during active lockscreen Bluetooth audio routing.",
-        causalImpact = "Recognized instantly without invoking expensive inference."
+        causalImpact = "Recognized via local cache without invoking expensive inference."
       ),
       ImmuneMemoryPattern(
         id = "mem_0035",

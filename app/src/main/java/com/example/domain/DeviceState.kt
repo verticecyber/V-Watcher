@@ -23,8 +23,8 @@ data class DeviceState(
   val timestamp: Long = System.currentTimeMillis(),
   val healthScore: Int = 96,
   val condition: DeviceCondition = DeviceCondition.HEALTHY,
-  val doctorClinicalNote: String = "Your device is healthy today. Real hardware telemetry and application boundaries match established physiological baselines.",
-  val supportingSummary: String = "Live Android telemetry active. Zero uncontained anomalies.",
+  val doctorClinicalNote: String = "Observation pending.",
+  val supportingSummary: String = "Awaiting initial observation capture.",
   val barrierState: BarrierState = BarrierState.WATCHING,
 
   // Real Observed Telemetry

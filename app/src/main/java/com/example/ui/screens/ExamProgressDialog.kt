@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,35 +40,54 @@ fun ExamProgressDialog(
 
   val isComplete = currentStep == ExamSequenceStep.EXAMINATION_COMPLETE
 
-  Dialog(onDismissRequest = { if (isComplete) onDismiss() }) {
+  Dialog(onDismissRequest = onDismiss) {
     Card(
       shape = RoundedCornerShape(24.dp),
       colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
       border = BorderStroke(1.dp, ClinicalOutline),
+      elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
       modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)
+        .padding(horizontal = 12.dp, vertical = 24.dp)
         .testTag("exam_progress_dialog")
     ) {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
+      Box(modifier = Modifier.fillMaxWidth()) {
+        IconButton(
+          onClick = onDismiss,
+          modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(12.dp)
+            .size(36.dp)
+            .testTag("close_exam_dialog_button")
+        ) {
+          Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Close examination",
+            tint = ClinicalTextSecondary,
+            modifier = Modifier.size(20.dp)
+          )
+        }
+
+        Column(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         if (!isComplete) {
           Box(
             modifier = Modifier
-              .size(54.dp)
+              .size(64.dp)
               .clip(CircleShape)
               .background(MedicalBlueLight),
             contentAlignment = Alignment.Center
           ) {
             CircularProgressIndicator(
               progress = { animatedProgress },
-              modifier = Modifier.size(36.dp),
-              strokeWidth = 3.5.dp,
-              color = MedicalBluePrimary
+              modifier = Modifier.size(44.dp),
+              strokeWidth = 4.dp,
+              color = MedicalBluePrimary,
+              trackColor = MedicalBlueLight.copy(alpha = 0.5f)
             )
           }
 
@@ -77,7 +97,7 @@ fun ExamProgressDialog(
             text = "CLINICAL EXAMINATION",
             style = MaterialTheme.typography.labelSmall.copy(
               fontWeight = FontWeight.Bold,
-              letterSpacing = 1.1.sp,
+              letterSpacing = 1.2.sp,
               color = MedicalBluePrimary
             )
           )
@@ -96,7 +116,8 @@ fun ExamProgressDialog(
             style = MaterialTheme.typography.bodySmall.copy(
               color = ClinicalTextSecondary,
               textAlign = TextAlign.Center,
-              fontSize = 12.sp
+              fontSize = 12.5.sp,
+              lineHeight = 17.sp
             )
           )
 
@@ -106,15 +127,25 @@ fun ExamProgressDialog(
             progress = { animatedProgress },
             modifier = Modifier
               .fillMaxWidth()
-              .height(6.dp)
-              .clip(RoundedCornerShape(3.dp)),
+              .height(8.dp)
+              .clip(RoundedCornerShape(4.dp)),
             color = MedicalBluePrimary,
             trackColor = ClinicalOutlineSoft
+          )
+
+          Spacer(modifier = Modifier.height(10.dp))
+
+          Text(
+            text = "${(animatedProgress * 100).toInt()}% Completed",
+            style = MaterialTheme.typography.labelSmall.copy(
+              color = ClinicalTextMuted,
+              fontWeight = FontWeight.Medium
+            )
           )
         } else {
           Box(
             modifier = Modifier
-              .size(60.dp)
+              .size(64.dp)
               .clip(CircleShape)
               .background(ClinicalGreenLight),
             contentAlignment = Alignment.Center
@@ -123,7 +154,7 @@ fun ExamProgressDialog(
               imageVector = Icons.Default.CheckCircle,
               contentDescription = null,
               tint = ClinicalGreenHealthy,
-              modifier = Modifier.size(36.dp)
+              modifier = Modifier.size(38.dp)
             )
           }
 
@@ -138,65 +169,89 @@ fun ExamProgressDialog(
             )
           )
 
-          Spacer(modifier = Modifier.height(10.dp))
+          Spacer(modifier = Modifier.height(8.dp))
 
-          Row(verticalAlignment = Alignment.Bottom) {
+          Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.Center
+          ) {
             Text(
               text = "$healthScore",
-              style = MaterialTheme.typography.headlineLarge.copy(
+              style = MaterialTheme.typography.displayMedium.copy(
                 fontWeight = FontWeight.Bold,
                 color = ClinicalTextPrimary,
-                fontSize = 42.sp
+                fontSize = 44.sp,
+                letterSpacing = (-1).sp
               )
             )
             Text(
               text = " / 100",
               style = MaterialTheme.typography.titleMedium.copy(
-                color = ClinicalTextMuted
-              )
+                color = ClinicalTextMuted,
+                fontWeight = FontWeight.SemiBold
+              ),
+              modifier = Modifier.padding(bottom = 6.dp, start = 2.dp)
             )
           }
 
+          Spacer(modifier = Modifier.height(8.dp))
+
+          val isHealthy = examConditionLabel(healthScore) == "Healthy"
           Surface(
-            color = if (examConditionLabel(healthScore) == "Healthy") ClinicalGreenLight else ClinicalAmberLight,
+            color = if (isHealthy) ClinicalGreenLight else ClinicalAmberLight,
+            border = BorderStroke(1.dp, if (isHealthy) ClinicalGreenHealthy.copy(alpha = 0.35f) else ClinicalAmberAttention.copy(alpha = 0.35f)),
             shape = RoundedCornerShape(8.dp)
           ) {
             Text(
               text = "Condition: ${examConditionLabel(healthScore)}",
               style = MaterialTheme.typography.labelSmall.copy(
-                color = if (examConditionLabel(healthScore) == "Healthy") ClinicalGreenHealthy else ClinicalAmberAttention,
-                fontWeight = FontWeight.Bold
+                color = if (isHealthy) ClinicalGreenHealthy else ClinicalAmberAttention,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.4.sp
               ),
-              modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+              modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
             )
           }
 
-          Spacer(modifier = Modifier.height(12.dp))
+          Spacer(modifier = Modifier.height(14.dp))
 
-          Text(
-            text = "\"$doctorSummary\"",
-            style = MaterialTheme.typography.bodySmall.copy(
-              color = ClinicalTextSecondary,
-              textAlign = TextAlign.Center,
-              fontSize = 12.sp
+          Surface(
+            color = ClinicalSurfaceVariant.copy(alpha = 0.6f),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(0.8.dp, ClinicalOutlineSoft),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Text(
+              text = "\"$doctorSummary\"",
+              style = MaterialTheme.typography.bodySmall.copy(
+                color = ClinicalTextSecondary,
+                textAlign = TextAlign.Center,
+                fontSize = 12.5.sp,
+                lineHeight = 18.sp
+              ),
+              modifier = Modifier.padding(12.dp)
             )
-          )
+          }
 
           Spacer(modifier = Modifier.height(20.dp))
 
           Button(
             onClick = onDismiss,
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MedicalBluePrimary),
             modifier = Modifier
               .fillMaxWidth()
-              .height(44.dp)
+              .height(48.dp)
               .testTag("dismiss_exam_button")
           ) {
-            Text("Done / View Diagnosis", fontWeight = FontWeight.Bold)
+            Text(
+              text = "Done • View Clinical Assessment",
+              style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+            )
           }
         }
       }
     }
   }
+}
 }

@@ -2,12 +2,10 @@ package com.example
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -51,6 +49,20 @@ fun VWatcherApp(
   var isDiagnosticsOpen by remember { mutableStateOf(false) }
   var isNotificationsOpen by remember { mutableStateOf(false) }
 
+  // Back Navigation Handlers to ensure app never hangs or freezes
+  BackHandler(enabled = uiState.isExamInProgress) {
+    viewModel.dismissExamDialog()
+  }
+  BackHandler(enabled = isNotificationsOpen) {
+    isNotificationsOpen = false
+  }
+  BackHandler(enabled = isDiagnosticsOpen) {
+    isDiagnosticsOpen = false
+  }
+  BackHandler(enabled = !isDiagnosticsOpen && !isNotificationsOpen && !uiState.isExamInProgress && currentTab != "HOME") {
+    currentTab = "HOME"
+  }
+
   // Interactive Examination Dialog (Routine Check)
   if (uiState.isExamInProgress) {
     ExamProgressDialog(
@@ -79,161 +91,204 @@ fun VWatcherApp(
   } else {
     Scaffold(
       containerColor = ClinicalBackground,
-      contentWindowInsets = WindowInsets.systemBars,
       bottomBar = {
         NavigationBar(
           containerColor = ClinicalSurface,
           contentColor = MedicalBluePrimary,
-          tonalElevation = 6.dp,
+          tonalElevation = 2.dp,
           modifier = Modifier.testTag("bottom_nav_bar")
         ) {
-          NavigationBarItem(
-            selected = currentTab == "HOME",
-            onClick = { currentTab = "HOME" },
-            icon = {
-              Icon(
-                imageVector = if (currentTab == "HOME") Icons.Filled.HealthAndSafety else Icons.Outlined.HealthAndSafety,
-                contentDescription = "Home"
-              )
-            },
-            label = { Text("Home", fontSize = 11.sp, fontWeight = if (currentTab == "HOME") FontWeight.Bold else FontWeight.Normal) },
-            colors = NavigationBarItemDefaults.colors(
-              selectedIconColor = MedicalBluePrimary,
-              selectedTextColor = MedicalBluePrimary,
-              indicatorColor = MedicalBlueLight
-            ),
-            modifier = Modifier.testTag("nav_home")
-          )
+            NavigationBarItem(
+              selected = currentTab == "HOME",
+              onClick = { currentTab = "HOME" },
+              icon = {
+                Icon(
+                  imageVector = if (currentTab == "HOME") Icons.Filled.HealthAndSafety else Icons.Outlined.HealthAndSafety,
+                  contentDescription = "Home"
+                )
+              },
+              label = {
+                Text(
+                  "Home",
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = if (currentTab == "HOME") FontWeight.Bold else FontWeight.Medium
+                  )
+                )
+              },
+              colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MedicalBluePrimary,
+                selectedTextColor = MedicalBluePrimary,
+                indicatorColor = MedicalBlueLight
+              ),
+              modifier = Modifier.testTag("nav_home")
+            )
 
-          NavigationBarItem(
-            selected = currentTab == "HEALTH",
-            onClick = { currentTab = "HEALTH" },
-            icon = {
-              Icon(
-                imageVector = if (currentTab == "HEALTH") Icons.Filled.FactCheck else Icons.Outlined.FactCheck,
-                contentDescription = "Health & Exam"
-              )
-            },
-            label = { Text("Exam", fontSize = 11.sp, fontWeight = if (currentTab == "HEALTH") FontWeight.Bold else FontWeight.Normal) },
-            colors = NavigationBarItemDefaults.colors(
-              selectedIconColor = MedicalBluePrimary,
-              selectedTextColor = MedicalBluePrimary,
-              indicatorColor = MedicalBlueLight
-            ),
-            modifier = Modifier.testTag("nav_health")
-          )
+            NavigationBarItem(
+              selected = currentTab == "HEALTH",
+              onClick = { currentTab = "HEALTH" },
+              icon = {
+                Icon(
+                  imageVector = if (currentTab == "HEALTH") Icons.Filled.FactCheck else Icons.Outlined.FactCheck,
+                  contentDescription = "Health & Exam"
+                )
+              },
+              label = {
+                Text(
+                  "Exam",
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = if (currentTab == "HEALTH") FontWeight.Bold else FontWeight.Medium
+                  )
+                )
+              },
+              colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MedicalBluePrimary,
+                selectedTextColor = MedicalBluePrimary,
+                indicatorColor = MedicalBlueLight
+              ),
+              modifier = Modifier.testTag("nav_health")
+            )
 
-          NavigationBarItem(
-            selected = currentTab == "CASES",
-            onClick = { currentTab = "CASES" },
-            icon = {
-              BadgedBox(
-                badge = {
-                  val activeCount = uiState.cases.count { it.status != com.example.model.CaseStatus.RESOLVED }
-                  if (activeCount > 0) {
-                    Badge(containerColor = ClinicalCoralCritical) {
-                      Text("$activeCount", color = Color.White)
+            NavigationBarItem(
+              selected = currentTab == "CASES",
+              onClick = { currentTab = "CASES" },
+              icon = {
+                BadgedBox(
+                  badge = {
+                    val activeCount = uiState.cases.count { it.status != com.example.model.CaseStatus.RESOLVED }
+                    if (activeCount > 0) {
+                      Badge(
+                        containerColor = ClinicalCoralCritical,
+                        contentColor = Color.White
+                      ) {
+                        Text(
+                          "$activeCount",
+                          style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.5.sp
+                          )
+                        )
+                      }
                     }
                   }
+                ) {
+                  Icon(
+                    imageVector = if (currentTab == "CASES") Icons.Filled.Assignment else Icons.Outlined.Assignment,
+                    contentDescription = "Cases"
+                  )
                 }
-              ) {
-                Icon(
-                  imageVector = if (currentTab == "CASES") Icons.Filled.Assignment else Icons.Outlined.Assignment,
-                  contentDescription = "Cases"
+              },
+              label = {
+                Text(
+                  "Cases",
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = if (currentTab == "CASES") FontWeight.Bold else FontWeight.Medium
+                  )
                 )
+              },
+              colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MedicalBluePrimary,
+                selectedTextColor = MedicalBluePrimary,
+                indicatorColor = MedicalBlueLight
+              ),
+              modifier = Modifier.testTag("nav_cases")
+            )
+
+            NavigationBarItem(
+              selected = currentTab == "IMMUNE",
+              onClick = { currentTab = "IMMUNE" },
+              icon = {
+                Icon(
+                  imageVector = if (currentTab == "IMMUNE") Icons.Filled.Biotech else Icons.Outlined.Biotech,
+                  contentDescription = "Immune"
+                )
+              },
+              label = {
+                Text(
+                  "Immune",
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = if (currentTab == "IMMUNE") FontWeight.Bold else FontWeight.Medium
+                  )
+                )
+              },
+              colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MedicalBluePrimary,
+                selectedTextColor = MedicalBluePrimary,
+                indicatorColor = MedicalBlueLight
+              ),
+              modifier = Modifier.testTag("nav_immune")
+            )
+
+            NavigationBarItem(
+              selected = currentTab == "MEMORY",
+              onClick = { currentTab = "MEMORY" },
+              icon = {
+                Icon(
+                  imageVector = if (currentTab == "MEMORY") Icons.Filled.Psychology else Icons.Outlined.Psychology,
+                  contentDescription = "Memory"
+                )
+              },
+              label = {
+                Text(
+                  "Memory",
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = if (currentTab == "MEMORY") FontWeight.Bold else FontWeight.Medium
+                  )
+                )
+              },
+              colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MemoryLavender,
+                selectedTextColor = MemoryLavender,
+                indicatorColor = MemoryLavenderLight
+              ),
+              modifier = Modifier.testTag("nav_memory")
+            )
+          }
+        },
+        modifier = modifier.fillMaxSize()
+      ) { innerPadding ->
+        Box(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+        ) {
+          when (currentTab) {
+            "HOME" -> HomeScreen(
+              uiState = uiState,
+              onRunCheck = { viewModel.runDeviceCheck() },
+              onSimulateAnomaly = { viewModel.simulateUnusualActivity() },
+              onNavigateToTab = { currentTab = it },
+              onOpenNotifications = { isNotificationsOpen = true },
+              onOpenDiagnostics = { isDiagnosticsOpen = true }
+            )
+
+            "HEALTH" -> HealthExamScreen(
+              uiState = uiState,
+              onIsolateApp = { viewModel.isolateApp(it) },
+              onReleaseApp = { viewModel.releaseApp(it) }
+            )
+
+            "CASES" -> CasesScreen(
+              uiState = uiState,
+              onResolveCase = { viewModel.resolveCase(it) },
+              onReleaseAppByName = { name ->
+                val app = uiState.applications.find { it.name == name }
+                if (app != null) viewModel.releaseApp(app.id)
               }
-            },
-            label = { Text("Cases", fontSize = 11.sp, fontWeight = if (currentTab == "CASES") FontWeight.Bold else FontWeight.Normal) },
-            colors = NavigationBarItemDefaults.colors(
-              selectedIconColor = MedicalBluePrimary,
-              selectedTextColor = MedicalBluePrimary,
-              indicatorColor = MedicalBlueLight
-            ),
-            modifier = Modifier.testTag("nav_cases")
-          )
+            )
 
-          NavigationBarItem(
-            selected = currentTab == "IMMUNE",
-            onClick = { currentTab = "IMMUNE" },
-            icon = {
-              Icon(
-                imageVector = if (currentTab == "IMMUNE") Icons.Filled.Biotech else Icons.Outlined.Biotech,
-                contentDescription = "Immune"
-              )
-            },
-            label = { Text("Immune", fontSize = 11.sp, fontWeight = if (currentTab == "IMMUNE") FontWeight.Bold else FontWeight.Normal) },
-            colors = NavigationBarItemDefaults.colors(
-              selectedIconColor = MedicalBluePrimary,
-              selectedTextColor = MedicalBluePrimary,
-              indicatorColor = MedicalBlueLight
-            ),
-            modifier = Modifier.testTag("nav_immune")
-          )
+            "IMMUNE" -> ImmuneSystemScreen(
+              uiState = uiState,
+              onNavigateToNetwork = { currentTab = "HEALTH" }
+            )
 
-          NavigationBarItem(
-            selected = currentTab == "MEMORY",
-            onClick = { currentTab = "MEMORY" },
-            icon = {
-              Icon(
-                imageVector = if (currentTab == "MEMORY") Icons.Filled.Psychology else Icons.Outlined.Psychology,
-                contentDescription = "Memory"
-              )
-            },
-            label = { Text("Memory", fontSize = 11.sp, fontWeight = if (currentTab == "MEMORY") FontWeight.Bold else FontWeight.Normal) },
-            colors = NavigationBarItemDefaults.colors(
-              selectedIconColor = MemoryLavender,
-              selectedTextColor = MemoryLavender,
-              indicatorColor = MemoryLavenderLight
-            ),
-            modifier = Modifier.testTag("nav_memory")
-          )
-        }
-      },
-      modifier = modifier.fillMaxSize()
-    ) { innerPadding ->
-      Box(
-        modifier = Modifier
-          .fillMaxSize()
-          .padding(innerPadding)
-      ) {
-        when (currentTab) {
-          "HOME" -> HomeScreen(
-            uiState = uiState,
-            onRunCheck = { viewModel.runDeviceCheck() },
-            onSimulateAnomaly = { viewModel.simulateUnusualActivity() },
-            onNavigateToTab = { currentTab = it },
-            onOpenNotifications = { isNotificationsOpen = true },
-            onOpenDiagnostics = { isDiagnosticsOpen = true }
-          )
-
-          "HEALTH" -> HealthExamScreen(
-            uiState = uiState,
-            onIsolateApp = { viewModel.isolateApp(it) },
-            onReleaseApp = { viewModel.releaseApp(it) }
-          )
-
-          "CASES" -> CasesScreen(
-            uiState = uiState,
-            onResolveCase = { viewModel.resolveCase(it) },
-            onReleaseAppByName = { name ->
-              val app = uiState.applications.find { it.name == name }
-              if (app != null) viewModel.releaseApp(app.id)
-            }
-          )
-
-          "IMMUNE" -> ImmuneSystemScreen(
-            uiState = uiState,
-            onNavigateToNetwork = { currentTab = "HEALTH" }
-          )
-
-          "MEMORY" -> MemoryScreen(
-            uiState = uiState
-          )
+            "MEMORY" -> MemoryScreen(
+              uiState = uiState
+            )
+          }
         }
       }
     }
   }
-}
 
 // Retained for test compatibility & preview
 @Composable

@@ -156,22 +156,26 @@ fun ImmuneSystemScreen(
 
             Row(
               modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.SpaceBetween
+              horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-              Column {
-                Text("Confidence", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp))
+              Column(modifier = Modifier.weight(1f)) {
+                Text("Confidence", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(homeostasisConfidenceDisplay(homeostasis?.confidenceScore), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = ClinicalTextSecondary))
               }
-              Column {
-                Text("Bus Rate", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp))
+              Column(modifier = Modifier.weight(1f)) {
+                Text("Bus Rate", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text("${"%.1f".format(busStats?.currentDispatchesPerSecond ?: 0.0)}/s", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = ClinicalTextPrimary))
               }
-              Column {
-                Text("Storm Protection", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp))
+              Column(modifier = Modifier.weight(1f)) {
+                Text("Storm Protection", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(if (busStats?.activeStormDetected == true) "Active" else "Nominal", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = if (busStats?.activeStormDetected == true) ClinicalCoralCritical else ClinicalGreenHealthy))
               }
-              Column {
-                Text("Active Effectors", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp))
+              Column(modifier = Modifier.weight(1f)) {
+                Text("Active Effectors", style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text("${homeostasis?.immuneActivity?.activeAgentsCount ?: 0} cells", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = MedicalBluePrimary))
               }
             }

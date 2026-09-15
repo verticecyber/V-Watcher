@@ -494,17 +494,7 @@ fun VitalSignCard(
   vital: DeviceVitalSign,
   modifier: Modifier = Modifier
 ) {
-  val infiniteTransition = rememberInfiniteTransition(label = "vital_pulse_${vital.id}")
-  val pulseAlpha by infiniteTransition.animateFloat(
-    initialValue = 0.4f,
-    targetValue = 1f,
-    animationSpec = infiniteRepeatable(
-      animation = tween(2000, easing = FastOutSlowInEasing),
-      repeatMode = RepeatMode.Reverse
-    ),
-    label = "pulse_alpha"
-  )
-
+  val pulseAlpha = 0.8f
   val statusColor = if (vital.isNormal) ClinicalGreenHealthy else ClinicalAmberAttention
 
   Card(
@@ -980,22 +970,22 @@ fun ProtectiveBarrierCard(
 
       OutlinedButton(
         onClick = onViewNetworkClick,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         border = BorderStroke(1.dp, MedicalBlueLight),
         colors = ButtonDefaults.outlinedButtonColors(
-          containerColor = MedicalBlueContainer.copy(alpha = 0.4f),
+          containerColor = MedicalBlueContainer.copy(alpha = 0.35f),
           contentColor = MedicalBluePrimary
         ),
         modifier = Modifier
           .fillMaxWidth()
-          .height(42.dp)
+          .height(48.dp)
           .testTag("view_network_health_button")
       ) {
-        Icon(Icons.Outlined.Dns, contentDescription = null, modifier = Modifier.size(16.dp))
+        Icon(Icons.Outlined.Dns, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(8.dp))
         Text(
           text = "Inspect Network Telemetry & Conduits",
-          style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+          style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
         )
       }
     }
@@ -1806,14 +1796,14 @@ fun ExplainabilityCard(
           colors = ButtonDefaults.buttonColors(containerColor = ClinicalGreenHealthy),
           modifier = Modifier
             .fillMaxWidth()
-            .height(46.dp)
+            .height(48.dp)
             .testTag("resolve_case_button")
         ) {
           Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
           Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = "Mark Case Resolved & Restore Normalcy",
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
           )
         }
       }

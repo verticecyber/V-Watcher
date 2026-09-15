@@ -94,8 +94,8 @@ data class NetworkConnection(
   val endpoint: String,
   val appName: String,
   val status: String, // "Trusted", "Unusual", "Isolated", "Active"
-  val protocol: String = "TLS 1.3",
-  val bandwidth: String = "12 KB/s",
+  val protocol: String = "Transport",
+  val bandwidth: String = "—",
   val timestamp: String = "Just now",
   val isDivertedToDecoy: Boolean = false
 )
@@ -168,11 +168,11 @@ data class HealthHistoryPoint(
 )
 
 data class EfficiencyMetrics(
-  val batteryImpact: String = "Very low (< 0.4%/day)",
-  val memoryUsage: String = "84 MB",
-  val cpuActivity: String = "Low (0.8% avg)",
+  val batteryImpact: String = "Unmeasured",
+  val memoryUsage: String = "—",
+  val cpuActivity: String = "Unmeasured",
   val localAnalysis: String = "Deterministic & on-demand local neural filter",
-  val inferenceActivity: String = "Idle (escalated only upon anomaly)"
+  val inferenceActivity: String = "Standby"
 )
 
 data class SimulatedNotification(

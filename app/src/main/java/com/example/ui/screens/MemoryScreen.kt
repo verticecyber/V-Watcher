@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.*
@@ -98,6 +99,22 @@ fun MemoryScreen(
           modifier = Modifier.size(20.dp)
         )
       },
+      trailingIcon = {
+        if (searchQuery.isNotEmpty()) {
+          IconButton(
+            onClick = { searchQuery = "" },
+            modifier = Modifier.size(24.dp)
+          ) {
+            Icon(
+              imageVector = Icons.Default.Close,
+              contentDescription = "Clear search",
+              tint = ClinicalTextSecondary,
+              modifier = Modifier.size(16.dp)
+            )
+          }
+        }
+      },
+      singleLine = true,
       shape = RoundedCornerShape(14.dp),
       colors = OutlinedTextFieldDefaults.colors(
         focusedContainerColor = ClinicalSurface,
@@ -188,11 +205,77 @@ fun MemoryScreen(
         }
       }
 
-      items(filteredPatterns) { pattern ->
-        ImmuneMemoryPatternCard(
-          pattern = pattern,
-          onClick = { selectedPatternDetail = pattern }
-        )
+      if (filteredPatterns.isEmpty()) {
+        item {
+          Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
+            border = BorderStroke(1.dp, ClinicalOutline),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(52.dp)
+                  .clip(CircleShape)
+                  .background(MemoryLavenderLight),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = Icons.Outlined.SearchOff,
+                  contentDescription = null,
+                  tint = MemoryLavender,
+                  modifier = Modifier.size(26.dp)
+                )
+              }
+              Spacer(modifier = Modifier.height(14.dp))
+              Text(
+                text = "No matching patterns found",
+                style = MaterialTheme.typography.titleMedium.copy(
+                  fontWeight = FontWeight.Bold,
+                  color = ClinicalTextPrimary
+                ),
+                textAlign = TextAlign.Center
+              )
+              Spacer(modifier = Modifier.height(6.dp))
+              Text(
+                text = "No remembered behavioral patterns match \"$searchQuery\". Try checking the spelling or search by category.",
+                style = MaterialTheme.typography.bodySmall.copy(
+                  color = ClinicalTextSecondary,
+                  fontSize = 12.5.sp,
+                  lineHeight = 17.sp
+                ),
+                textAlign = TextAlign.Center
+              )
+              Spacer(modifier = Modifier.height(16.dp))
+              OutlinedButton(
+                onClick = { searchQuery = "" },
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, MemoryLavender.copy(alpha = 0.6f)),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MemoryLavender),
+                modifier = Modifier.height(44.dp)
+              ) {
+                Text(
+                  text = "Clear Search",
+                  style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                )
+              }
+            }
+          }
+        }
+      } else {
+        items(filteredPatterns) { pattern ->
+          ImmuneMemoryPatternCard(
+            pattern = pattern,
+            onClick = { selectedPatternDetail = pattern }
+          )
+        }
       }
 
       item {

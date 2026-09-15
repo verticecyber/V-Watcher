@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.*
@@ -132,35 +133,74 @@ fun CasesScreen(
       if (filteredCases.isEmpty()) {
         item {
           Card(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
             border = BorderStroke(1.dp, ClinicalOutline),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
             modifier = Modifier.fillMaxWidth()
           ) {
             Column(
               modifier = Modifier
                 .fillMaxWidth()
-                .padding(32.dp),
+                .padding(horizontal = 24.dp, vertical = 36.dp),
               horizontalAlignment = Alignment.CenterHorizontally
             ) {
-              Icon(
-                imageVector = Icons.Outlined.CheckCircleOutline,
-                contentDescription = null,
-                tint = ClinicalGreenHealthy,
-                modifier = Modifier.size(40.dp)
-              )
-              Spacer(modifier = Modifier.height(12.dp))
+              Box(
+                modifier = Modifier
+                  .size(56.dp)
+                  .clip(CircleShape)
+                  .background(if (filterStatus == "ACTIVE") ClinicalGreenLight else MedicalBlueLight),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = if (filterStatus == "ACTIVE") Icons.Default.CheckCircle else Icons.Outlined.AssignmentLate,
+                  contentDescription = null,
+                  tint = if (filterStatus == "ACTIVE") ClinicalGreenHealthy else MedicalBluePrimary,
+                  modifier = Modifier.size(30.dp)
+                )
+              }
+              Spacer(modifier = Modifier.height(16.dp))
               Text(
-                text = "No active cases",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                text = when (filterStatus) {
+                  "ACTIVE" -> "Zero Active Incidents"
+                  "RESOLVED" -> "No Resolved Cases"
+                  else -> "No Incidents Recorded"
+                },
+                style = MaterialTheme.typography.titleMedium.copy(
+                  fontWeight = FontWeight.Bold,
+                  color = ClinicalTextPrimary
+                ),
+                textAlign = TextAlign.Center
               )
+              Spacer(modifier = Modifier.height(6.dp))
               Text(
-                text = "Your device's immune system is maintaining steady equilibrium.",
+                text = when (filterStatus) {
+                  "ACTIVE" -> "All observed behavioral anomalies have been analyzed and resolved. Biological homeostasis is maintained."
+                  "RESOLVED" -> "Resolved cases will be archived here once clinical review and containment actions are completed."
+                  else -> "V-Watcher is actively monitoring telemetry signals. No behavioral incidents have occurred."
+                },
                 style = MaterialTheme.typography.bodySmall.copy(
                   color = ClinicalTextSecondary,
-                  fontSize = 12.sp
-                )
+                  fontSize = 12.5.sp,
+                  lineHeight = 17.sp
+                ),
+                textAlign = TextAlign.Center
               )
+              if (filterStatus != "ALL") {
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedButton(
+                  onClick = { filterStatus = "ALL" },
+                  shape = RoundedCornerShape(12.dp),
+                  border = BorderStroke(1.dp, MedicalBluePrimary.copy(alpha = 0.5f)),
+                  colors = ButtonDefaults.outlinedButtonColors(contentColor = MedicalBluePrimary),
+                  modifier = Modifier.height(44.dp)
+                ) {
+                  Text(
+                    text = "View All Cases (${uiState.cases.size})",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                  )
+                }
+              }
             }
           }
         }

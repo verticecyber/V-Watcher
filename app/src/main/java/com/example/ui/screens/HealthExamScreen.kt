@@ -490,25 +490,37 @@ private fun ApplicationRecordCard(
         if (isIsolated) {
           Button(
             onClick = onRelease,
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = ClinicalGreenHealthy),
-            modifier = Modifier.height(36.dp).testTag("release_app_button_${app.id}")
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier
+              .height(44.dp)
+              .testTag("release_app_button_${app.id}")
           ) {
-            Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(14.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Release / Restore", fontSize = 12.sp)
+            Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+              text = "Release / Restore",
+              style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+            )
           }
         } else {
           OutlinedButton(
             onClick = onIsolate,
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(12.dp),
             border = BorderStroke(1.dp, ClinicalAmberAttention),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = ClinicalAmberAttention),
-            modifier = Modifier.height(36.dp).testTag("isolate_app_button_${app.id}")
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier
+              .height(44.dp)
+              .testTag("isolate_app_button_${app.id}")
           ) {
-            Icon(Icons.Outlined.Shield, contentDescription = null, modifier = Modifier.size(14.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Flag for review", fontSize = 12.sp)
+            Icon(Icons.Outlined.Shield, contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+              text = "Flag for review",
+              style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+            )
           }
         }
       }

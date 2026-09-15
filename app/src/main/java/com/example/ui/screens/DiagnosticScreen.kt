@@ -3,6 +3,7 @@ package com.example.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -37,6 +38,7 @@ fun DiagnosticScreen(
   onRefreshTelemetry: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  BackHandler(onBack = onBack)
   val context = LocalContext.current
   val sentinel = deviceState?.sentinelState
   val communication = deviceState?.communicationState
@@ -203,7 +205,7 @@ fun DiagnosticScreen(
                 if (sentinel?.isStale == true) "STALE (Threshold exceeded)" else "FRESH (Physiological equilibrium)",
                 highlight = !(sentinel?.isStale ?: false)
               )
-              DiagnosticMetricRow("Total Snapshots Emitted", "${sentinel?.observationCount ?: 1}")
+              DiagnosticMetricRow("Total Snapshots Emitted", "${sentinel?.observationCount ?: 0}")
               DiagnosticMetricRow("Degraded Providers", if (lastObs?.hasDegradedProviders == true) "YES (Recorded in health map)" else "NONE")
               DiagnosticMetricRow("Unavailable Providers", if (lastObs?.hasUnavailableProviders == true) "YES (Fail-closed active)" else "NONE")
               if (sentinel?.lastError != null) {
@@ -275,7 +277,7 @@ fun DiagnosticScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-              DiagnosticMetricRow("Total Dispatched Events", "${communication?.totalTelemetryDispatched ?: 1}")
+              DiagnosticMetricRow("Total Dispatched Events", "${communication?.totalTelemetryDispatched ?: 0}")
               DiagnosticMetricRow("Last Observation ID", communication?.lastTelemetryObservationId ?: sentinel?.lastObservation?.observationId ?: "N/A")
               DiagnosticMetricRow("Total Reasoning Invocations", "${communication?.totalReasoningRequests ?: 0}")
               DiagnosticMetricRow("Last Request ID", communication?.lastReasoningRequest?.requestId ?: "None")
@@ -398,7 +400,7 @@ fun DiagnosticScreen(
               status = reasoning?.deterministicStatus ?: ModelReadiness.READY,
               isSelected = reasoning?.selectedBackend == "DETERMINISTIC",
               isActuallyExecuted = reasoning?.actualBackendUsed == "DETERMINISTIC",
-              latency = if (reasoning?.actualBackendUsed == "DETERMINISTIC") "${(reasoning.latencyMs).coerceAtLeast(1L)} ms" else "< 1 ms",
+              latency = if (reasoning?.actualBackendUsed == "DETERMINISTIC") "${(reasoning.latencyMs).coerceAtLeast(1L)} ms" else "Standby",
               notes = "Defensive clinical baseline active. Evaluates canonical thresholds deterministically with zero energy waste.",
               invocationCount = reasoning?.deterministicCallsCount ?: reasoning?.callsAvoidedByDeterministicLayer ?: 0
             )
@@ -432,7 +434,8 @@ fun DiagnosticScreen(
                   style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                 )
               }
-              val macroState = homeostasis?.macroState ?: com.example.immune.HomeostaticMacroState.HOMEOSTATIC
+              val macroState = homeostasis?.macroState
+              val displayName = macroStateDisplayName(macroState)
               val (badgeBg, badgeText) = when (macroState) {
                 com.example.immune.HomeostaticMacroState.HOMEOSTATIC -> ClinicalGreenLight to ClinicalGreenHealthy
                 com.example.immune.HomeostaticMacroState.WATCH -> ClinicalAmberLight to ClinicalAmberAttention
@@ -440,11 +443,11 @@ fun DiagnosticScreen(
                 com.example.immune.HomeostaticMacroState.ACTIVE_DEFENSE -> ClinicalCoralLight to ClinicalCoralCritical
                 com.example.immune.HomeostaticMacroState.RECOVERING -> MedicalTealLight to MedicalTealSecondary
                 com.example.immune.HomeostaticMacroState.DEGRADED -> ClinicalCoralLight to ClinicalCoralCritical
-                com.example.immune.HomeostaticMacroState.UNKNOWN -> ClinicalSurfaceVariant to ClinicalTextMuted
+                com.example.immune.HomeostaticMacroState.UNKNOWN, null -> ClinicalSurfaceVariant to ClinicalTextMuted
               }
               Surface(color = badgeBg, shape = RoundedCornerShape(6.dp)) {
                 Text(
-                  text = macroState.name,
+                  text = displayName,
                   style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = badgeText, fontSize = 10.sp),
                   modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                 )
@@ -452,7 +455,7 @@ fun DiagnosticScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-              text = homeostasis?.primaryReason ?: "Equilibrium maintained across all cellular and hardware dimensions.",
+              text = homeostasisReasonDisplay(homeostasis?.primaryReason),
               style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextSecondary)
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -460,7 +463,7 @@ fun DiagnosticScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-              DiagnosticMetricRow("Macro State Rationale", homeostasis?.macroState?.clinicalRationale ?: "Nominal surveillance")
+              DiagnosticMetricRow("Macro State Rationale", homeostasis?.macroState?.clinicalRationale ?: "Evaluation pending — no equilibrium claim made yet.")
               DiagnosticMetricRow("Homeostasis Confidence", homeostasisConfidenceDisplay(homeostasis?.confidenceScore), highlight = true)
               DiagnosticMetricRow("Active Storm Detected", if (busStats?.activeStormDetected == true) "YES (Regulatory suppression active)" else "NONE (Stable)", isError = busStats?.activeStormDetected == true)
               DiagnosticMetricRow("Immune Bus Rate", "${"%.1f".format(busStats?.currentDispatchesPerSecond ?: 0.0)} msg/sec")

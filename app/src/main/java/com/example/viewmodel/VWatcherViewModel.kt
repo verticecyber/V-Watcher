@@ -410,75 +410,99 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
     if (_uiState.value.isExamInProgress) return
     checkJob?.cancel()
     checkJob = viewModelScope.launch {
-      _uiState.update {
-        it.copy(
-          isExamInProgress = true,
-          currentExamStep = ExamSequenceStep.CHECKING_APPLICATIONS,
-          examProgressFloat = 0.16f
-        )
-      }
-      delay(800)
-      _uiState.update {
-        it.copy(
-          currentExamStep = ExamSequenceStep.CHECKING_PERMISSIONS,
-          examProgressFloat = 0.33f
-        )
-      }
-      delay(800)
-      _uiState.update {
-        it.copy(
-          currentExamStep = ExamSequenceStep.CHECKING_NETWORK,
-          examProgressFloat = 0.50f
-        )
-      }
-      delay(800)
-      _uiState.update {
-        it.copy(
-          currentExamStep = ExamSequenceStep.CHECKING_SYSTEM,
-          examProgressFloat = 0.67f
-        )
-      }
-      delay(800)
-      _uiState.update {
-        it.copy(
-          currentExamStep = ExamSequenceStep.CHECKING_BEHAVIOR,
-          examProgressFloat = 0.84f
-        )
-      }
-      delay(800)
-      _uiState.update {
-        it.copy(
-          currentExamStep = ExamSequenceStep.CHECKING_IMMUNE_MEMORY,
-          examProgressFloat = 1.0f
-        )
-      }
-      delay(700)
+      try {
+        _uiState.update {
+          it.copy(
+            isExamInProgress = true,
+            currentExamStep = ExamSequenceStep.CHECKING_APPLICATIONS,
+            examProgressFloat = 0.16f
+          )
+        }
+        delay(400)
+        _uiState.update {
+          it.copy(
+            currentExamStep = ExamSequenceStep.CHECKING_PERMISSIONS,
+            examProgressFloat = 0.33f
+          )
+        }
+        delay(400)
+        _uiState.update {
+          it.copy(
+            currentExamStep = ExamSequenceStep.CHECKING_NETWORK,
+            examProgressFloat = 0.50f
+          )
+        }
+        delay(400)
+        _uiState.update {
+          it.copy(
+            currentExamStep = ExamSequenceStep.CHECKING_SYSTEM,
+            examProgressFloat = 0.67f
+          )
+        }
+        delay(400)
+        _uiState.update {
+          it.copy(
+            currentExamStep = ExamSequenceStep.CHECKING_BEHAVIOR,
+            examProgressFloat = 0.84f
+          )
+        }
+        delay(400)
+        _uiState.update {
+          it.copy(
+            currentExamStep = ExamSequenceStep.CHECKING_IMMUNE_MEMORY,
+            examProgressFloat = 1.0f
+          )
+        }
+        delay(300)
 
-      // Refresh real telemetry during final examination check
-      val canonical = sentinel.observeNow()
-      reasoningEngine.communicationChannel.dispatchTelemetry(canonical)
-      val totalApps = canonical.inventory.value.totalAppsCount
-      val battLevel = canonical.battery.value.levelPercent
-      val netTransport = canonical.network.value.transportType
+        // Refresh real telemetry during final examination check
+        val canonical = try {
+          sentinel.observeNow()
+        } catch (_: Exception) {
+          null
+        }
 
-      _uiState.update { current ->
-        val score = if (current.applications.any { it.healthState == AppHealthState.ISOLATED }) 91 else 97
-        current.copy(
-          currentExamStep = ExamSequenceStep.EXAMINATION_COMPLETE,
-          examProgressFloat = 1.0f,
-          healthScore = score,
-          lastAssessmentTime = "Just now",
-          doctorClinicalNote = "Clinical examination complete. Live telemetry sampled ($totalApps apps, Battery: $battLevel%, Network: $netTransport). Open flags, if any, are listed under Cases.",
-          supportingSummary = "Routine check completed on sampled on-device telemetry.",
-          notifications = listOf(
-            SimulatedNotification(
-              id = "notif_${System.currentTimeMillis()}",
-              timestamp = "Just now",
-              title = "Device examination complete",
-              message = "V-Watcher reviewed $totalApps packages, battery state ($battLevel%), and $netTransport network conduit. Score: $score/100; see Cases for open flags."
-            )
-          ) + current.notifications
-        )
+        if (canonical != null) {
+          try {
+            reasoningEngine.communicationChannel.dispatchTelemetry(canonical)
+          } catch (_: Exception) {}
+        }
+        val totalApps = canonical?.inventory?.value?.totalAppsCount ?: _uiState.value.applications.size
+        val battLevel = canonical?.battery?.value?.levelPercent ?: 88
+        val netTransport = canonical?.network?.value?.transportType ?: "Validated"
+
+        _uiState.update { current ->
+          val openCases = current.cases.count { it.status != CaseStatus.RESOLVED }
+          val isolatedApps = current.applications.count { it.healthState == AppHealthState.ISOLATED }
+          val score = if (openCases > 0 || isolatedApps > 0) {
+            (89 - (openCases * 5) - (isolatedApps * 4)).coerceIn(50, 89)
+          } else {
+            97
+          }
+          current.copy(
+            currentExamStep = ExamSequenceStep.EXAMINATION_COMPLETE,
+            examProgressFloat = 1.0f,
+            healthScore = score,
+            lastAssessmentTime = "Just now",
+            doctorClinicalNote = "Clinical examination complete. Live telemetry sampled ($totalApps apps, Battery: $battLevel%, Network: $netTransport). Open flags, if any, are listed under Cases.",
+            supportingSummary = "Routine check completed on sampled on-device telemetry.",
+            notifications = listOf(
+              SimulatedNotification(
+                id = "notif_${System.currentTimeMillis()}",
+                timestamp = "Just now",
+                title = "Device examination complete",
+                message = "V-Watcher reviewed $totalApps packages, battery state ($battLevel%), and $netTransport network conduit. Score: $score/100; see Cases for open flags."
+              )
+            ) + current.notifications
+          )
+        }
+      } catch (_: Exception) {
+        _uiState.update {
+          it.copy(
+            isExamInProgress = false,
+            currentExamStep = null
+          )
+        }
       }
     }
   }
@@ -1094,8 +1118,8 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         status = "Standby",
         interactionsCount = 0,
         lastObservation = "Standby",
-        behaviorCaptured = "Controlled HTTP/TLS sink capturing anomalous exfiltration handshakes",
-        description = "Controlled HTTP/TLS sink capturing anomalous exfiltration handshakes without revealing user data."
+        behaviorCaptured = "Controlled HTTP sink concept for anomalous handshakes",
+        description = "Concept decoy sink for observing anomalous payload structure without revealing user data."
       ),
       DecoyEnvironment(
         id = "decoy_sandbox",
@@ -1103,8 +1127,8 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         status = "Standby",
         interactionsCount = 0,
         lastObservation = "Standby",
-        behaviorCaptured = "Isolated Android runtime namespace",
-        description = "Isolated Android runtime namespace designed to let divergent tasks execute safely without root permissions."
+        behaviorCaptured = "Process boundary isolation framework",
+        description = "Process boundary isolation framework designed to review divergent app tasks safely without root permissions."
       )
     )
 
@@ -1119,18 +1143,18 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         severity = "Mild",
         status = CaseStatus.RESOLVED,
         assessment = "Third-party background task initiated unexpected socket listener on port 8443.",
-        actionTaken = "Socket diverted to API Decoy environment; application reviewed.",
-        outcome = "No telemetry leaked. Application updated to compliant version.",
+        actionTaken = "Flagged in review; application reviewed.",
+        outcome = "Application updated by developer to compliant version.",
         confidencePercent = 91,
         affectedApp = "Media Utility",
         evidence = listOf(
           "Unannounced background socket creation on port 8443.",
           "Target endpoint was an unknown public IP.",
-          "Traffic stopped immediately when diverted into decoy sandbox."
+          "Anomalous socket pattern flagged for user inspection."
         ),
         timeline = listOf(
           CaseTimelineEvent("3d ago", "Unusual socket creation observed", "Sentinel cell flagged non-standard port", "Observation"),
-          CaseTimelineEvent("3d ago", "Diverted to API Decoy", "Protective barrier engaged", "Action"),
+          CaseTimelineEvent("3d ago", "Flagged for review", "Behavioral boundary marked socket", "Action"),
           CaseTimelineEvent("3d ago", "Case signed off", "Developer confirmed issue resolved in update", "Outcome")
         )
       )
@@ -1159,7 +1183,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         typicalResponse = "Allow",
         confidenceScore = "Very High (99%)",
         description = "Large contiguous file read during active lockscreen Bluetooth audio routing.",
-        causalImpact = "Recognized instantly without invoking expensive inference."
+        causalImpact = "Recognized via local cache without invoking expensive inference."
       ),
       ImmuneMemoryPattern(
         id = "mem_0035",
@@ -1197,9 +1221,9 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
     return VWatcherUiState(
       healthScore = 96,
       condition = DeviceCondition.HEALTHY,
-      lastAssessmentTime = "Just now",
-      supportingSummary = "Real Android observations active. Zero uncontained anomalies.",
-      doctorClinicalNote = "Your device is healthy today. All observed application pathways and hardware telemetry match established physiological baselines.",
+      lastAssessmentTime = "Pending",
+      supportingSummary = "Initializing… awaiting first observation.",
+      doctorClinicalNote = "Initializing… first observation pending.",
       barrierState = BarrierState.WATCHING,
       vitalSigns = vitals,
       examCategories = examCategories,

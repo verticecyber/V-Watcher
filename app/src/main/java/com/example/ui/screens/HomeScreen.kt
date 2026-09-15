@@ -46,17 +46,6 @@ fun HomeScreen(
   val context = LocalContext.current
   var selectedCellForDetail by remember { mutableStateOf<ImmuneCell?>(null) }
 
-  val infiniteTransition = rememberInfiniteTransition(label = "home_pulse")
-  val scannerPulseAlpha by infiniteTransition.animateFloat(
-    initialValue = 0.5f,
-    targetValue = 1f,
-    animationSpec = infiniteRepeatable(
-      animation = tween(1500, easing = FastOutSlowInEasing),
-      repeatMode = RepeatMode.Reverse
-    ),
-    label = "scanner_alpha"
-  )
-
   // Polished Android-Native Detail Surface for Immune Cells
   if (selectedCellForDetail != null) {
     ImmuneCellDetailBottomSheet(
@@ -347,14 +336,14 @@ fun HomeScreen(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
       ) {
-        Surface(
-          shape = RoundedCornerShape(18.dp),
-          color = Color.Transparent,
-          border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
-          shadowElevation = 4.dp,
+        Card(
+          shape = RoundedCornerShape(20.dp),
+          colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+          border = BorderStroke(1.dp, MedicalBlueLight.copy(alpha = 0.35f)),
+          elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
           modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable { onRunCheck() }
             .testTag("run_device_check_button")
         ) {
@@ -370,32 +359,35 @@ fun HomeScreen(
                   )
                 )
               )
-              .padding(horizontal = 20.dp, vertical = 16.dp)
+              .padding(horizontal = 20.dp, vertical = 18.dp)
           ) {
             Row(
               modifier = Modifier.fillMaxWidth(),
               verticalAlignment = Alignment.CenterVertically,
               horizontalArrangement = Arrangement.SpaceBetween
             ) {
-              Row(verticalAlignment = Alignment.CenterVertically) {
+              Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
                 Box(
                   contentAlignment = Alignment.Center,
                   modifier = Modifier
-                    .size(44.dp)
+                    .size(46.dp)
                     .clip(CircleShape)
                     .background(Color.White.copy(alpha = 0.15f))
                 ) {
                   Box(
                     modifier = Modifier
-                      .size(34.dp)
+                      .size(36.dp)
                       .clip(CircleShape)
-                      .background(MedicalBlueGlow.copy(alpha = scannerPulseAlpha * 0.3f))
+                      .background(MedicalBlueGlow.copy(alpha = 0.25f))
                   )
                   Icon(
                     imageVector = Icons.Default.Troubleshoot,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(24.dp)
                   )
                 }
                 Spacer(modifier = Modifier.width(14.dp))
@@ -409,98 +401,103 @@ fun HomeScreen(
                         letterSpacing = 0.8.sp
                       )
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Surface(
-                      color = MedicalTealGlow.copy(alpha = 0.25f),
-                      shape = RoundedCornerShape(4.dp)
+                      color = MedicalTealGlow.copy(alpha = 0.3f),
+                      shape = RoundedCornerShape(6.dp)
                     ) {
                       Text(
                         text = "ROUTINE EXAM",
                         style = MaterialTheme.typography.labelSmall.copy(
                           fontSize = 8.5.sp,
                           color = Color.White,
-                          fontWeight = FontWeight.Bold
+                          fontWeight = FontWeight.Bold,
+                          letterSpacing = 0.5.sp
                         ),
-                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                       )
                     }
                   }
-                  Spacer(modifier = Modifier.height(2.dp))
+                  Spacer(modifier = Modifier.height(3.dp))
                   Text(
-                    text = "Evaluate apps, permissions, network state & immune memory (sampled signals)",
+                    text = "Evaluate apps, permissions, network & immune reflex",
                     style = MaterialTheme.typography.bodySmall.copy(
-                      color = Color.White.copy(alpha = 0.85f),
-                      fontSize = 11.5.sp
+                      color = Color.White.copy(alpha = 0.88f),
+                      fontSize = 12.sp,
+                      lineHeight = 16.sp
                     )
                   )
                 }
               }
+              Spacer(modifier = Modifier.width(8.dp))
               Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                  .size(32.dp)
+                  .size(34.dp)
                   .clip(CircleShape)
-                  .background(Color.White.copy(alpha = 0.15f))
+                  .background(Color.White.copy(alpha = 0.18f))
               ) {
                 Icon(
                   imageVector = Icons.Default.ArrowForward,
                   contentDescription = null,
                   tint = Color.White,
-                  modifier = Modifier.size(16.dp)
+                  modifier = Modifier.size(18.dp)
                 )
               }
             }
           }
         }
 
-        Surface(
-          shape = RoundedCornerShape(14.dp),
-          color = ClinicalSurface,
+        Card(
+          shape = RoundedCornerShape(16.dp),
+          colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
           border = BorderStroke(1.dp, ClinicalOutline),
-          shadowElevation = 0.dp,
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
           modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(16.dp))
             .clickable(enabled = !uiState.isSimulationActive) { onSimulateAnomaly() }
             .testTag("simulate_unusual_activity_button")
         ) {
           Row(
             modifier = Modifier
               .fillMaxWidth()
-              .padding(horizontal = 16.dp, vertical = 11.dp),
+              .padding(horizontal = 16.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
           ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+              modifier = Modifier.weight(1f),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
               Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                  .size(30.dp)
-                  .clip(RoundedCornerShape(8.dp))
+                  .size(34.dp)
+                  .clip(RoundedCornerShape(10.dp))
                   .background(ClinicalSurfaceVariant)
               ) {
                 Icon(
                   imageVector = Icons.Outlined.Biotech,
                   contentDescription = null,
-                  tint = ClinicalTextSecondary,
-                  modifier = Modifier.size(16.dp)
+                  tint = MedicalBluePrimary,
+                  modifier = Modifier.size(18.dp)
                 )
               }
-              Spacer(modifier = Modifier.width(10.dp))
+              Spacer(modifier = Modifier.width(12.dp))
               Column {
                 Text(
                   text = "Test Lab: Simulate Anomaly",
-                  style = MaterialTheme.typography.bodyMedium.copy(
+                  style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.SemiBold,
-                    color = ClinicalTextSecondary,
-                    fontSize = 12.5.sp
+                    color = ClinicalTextPrimary
                   )
                 )
                 Text(
                   text = "Observe autonomous biological containment reflex",
-                  style = MaterialTheme.typography.labelSmall.copy(
-                    color = ClinicalTextMuted,
-                    fontSize = 10.5.sp
+                  style = MaterialTheme.typography.bodySmall.copy(
+                    color = ClinicalTextSecondary,
+                    fontSize = 11.5.sp
                   )
                 )
               }
@@ -508,8 +505,8 @@ fun HomeScreen(
             Icon(
               imageVector = Icons.Default.PlayArrow,
               contentDescription = null,
-              tint = ClinicalTextMuted,
-              modifier = Modifier.size(18.dp)
+              tint = MedicalBluePrimary,
+              modifier = Modifier.size(20.dp)
             )
           }
         }
@@ -550,7 +547,7 @@ fun HomeScreen(
           )
         }
         Text(
-          text = "Continuous On-Device Stream",
+          text = "On-Demand Device Snapshot",
           style = MaterialTheme.typography.labelSmall.copy(
             color = ClinicalTextMuted,
             fontSize = 10.5.sp
@@ -661,13 +658,14 @@ fun HomeScreen(
           Spacer(modifier = Modifier.height(12.dp))
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
           ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
               Text(
                 text = "Battery Drain",
-                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp)
+                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp)
               )
+              Spacer(modifier = Modifier.height(2.dp))
               Text(
                 text = "Unmeasured",
                 style = MaterialTheme.typography.bodySmall.copy(
@@ -676,11 +674,12 @@ fun HomeScreen(
                 )
               )
             }
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
               Text(
                 text = "RAM Overhead",
-                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp)
+                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp)
               )
+              Spacer(modifier = Modifier.height(2.dp))
               Text(
                 text = uiState.efficiency.memoryUsage.ifEmpty { "—" },
                 style = MaterialTheme.typography.bodySmall.copy(
@@ -689,11 +688,12 @@ fun HomeScreen(
                 )
               )
             }
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
               Text(
                 text = "CPU Footprint",
-                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp)
+                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp)
               )
+              Spacer(modifier = Modifier.height(2.dp))
               Text(
                 text = uiState.efficiency.cpuActivity.ifEmpty { "Unmeasured" },
                 style = MaterialTheme.typography.bodySmall.copy(
@@ -702,11 +702,12 @@ fun HomeScreen(
                 )
               )
             }
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
               Text(
                 text = "Inference Mode",
-                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.sp)
+                style = MaterialTheme.typography.labelSmall.copy(color = ClinicalTextMuted, fontSize = 10.5.sp)
               )
+              Spacer(modifier = Modifier.height(2.dp))
               Text(
                 text = uiState.efficiency.inferenceActivity.ifEmpty { "—" },
                 style = MaterialTheme.typography.bodySmall.copy(
