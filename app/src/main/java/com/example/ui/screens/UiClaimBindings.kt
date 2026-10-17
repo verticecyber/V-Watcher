@@ -16,6 +16,21 @@ import com.example.viewmodel.VWatcherUiState
 /** Claim 1 BACKEND_BOUND: banner shows only after a real observation exists. */
 fun deviceDataBadgeVisible(hasObservation: Boolean): Boolean = hasObservation
 
+/** Claims ModelReadiness BACKEND_BOUND: displays accurate on-device backend status without fabrication. */
+fun modelReadinessDisplayName(readiness: com.example.reasoning.ModelReadiness?, backendUsed: String?): String = when (readiness) {
+  com.example.reasoning.ModelReadiness.READY -> when (backendUsed) {
+    "GEMINI_NANO" -> "AICORE READY"
+    "GEMMA" -> "GEMMA READY"
+    else -> "LOCAL NEURAL READY"
+  }
+  com.example.reasoning.ModelReadiness.PREPARING -> "EVALUATING RUNTIME"
+  com.example.reasoning.ModelReadiness.ERROR -> "FALLBACK MODE"
+  com.example.reasoning.ModelReadiness.UNAVAILABLE, null -> "DETERMINISTIC MODE"
+}
+
+fun modelReadinessIsReady(readiness: com.example.reasoning.ModelReadiness?): Boolean =
+  readiness == com.example.reasoning.ModelReadiness.READY
+
 /** Claims 2/Immune BACKEND_BOUND: null evaluation renders as unevaluated, never green. */
 fun macroStateDisplayName(macroState: HomeostaticMacroState?): String =
   macroState?.name ?: "EVALUATING"
@@ -84,6 +99,19 @@ fun bindExamCategories(base: List<ExamCategory>, ui: VWatcherUiState): List<Exam
         isHealthy = open == 0,
         notes = "Behavioral baseline only with usage access granted."
       )
+      "ec_resources" -> {
+        val isLowMem = ui.deviceState?.memory?.value?.isLowMemory == true
+        val availMb = ui.deviceState?.memory?.value?.availableMemMb ?: 0L
+        val battTemp = ui.deviceState?.battery?.value?.temperatureCelsius ?: 25.0f
+        val isResourceNominal = !isLowMem && battTemp < 42.0f
+        category.copy(
+          status = if (isResourceNominal) "Healthy" else "Attention",
+          summary = "RAM: ${availMb}MB free · Battery temp: ${battTemp.toInt()}°C",
+          detailCountText = if (isLowMem) "Memory pressure detected" else "Resources within envelope",
+          isHealthy = isResourceNominal,
+          notes = "Measured directly from ActivityManager and BatteryManager."
+        )
+      }
       "ec_immune" -> category.copy(
         status = "Ready",
         summary = "${ui.memoryPatterns.size} patterns in local repository",

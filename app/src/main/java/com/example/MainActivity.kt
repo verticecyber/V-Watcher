@@ -6,20 +6,28 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ui.components.appTactile
 import com.example.ui.screens.*
 import com.example.ui.theme.*
 import com.example.viewmodel.VWatcherViewModel
@@ -90,37 +98,56 @@ fun VWatcherApp(
     )
   } else {
     Scaffold(
-      containerColor = ClinicalBackground,
+      containerColor = WhoopBlackBg,
       bottomBar = {
-        NavigationBar(
-          containerColor = ClinicalSurface,
-          contentColor = MedicalBluePrimary,
-          tonalElevation = 2.dp,
-          modifier = Modifier.testTag("bottom_nav_bar")
+        // High-contrast WHOOP-inspired bottom navigation bar (Matte dark surface with neon accent indicators)
+        Surface(
+          color = WhoopSurface,
+          border = BorderStroke(1.dp, WhoopSurfaceBorderSubtle),
+          tonalElevation = 0.dp,
+          shadowElevation = 0.dp,
+          modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
         ) {
+          NavigationBar(
+            containerColor = WhoopSurface,
+            contentColor = WhoopTextPrimary,
+            tonalElevation = 0.dp,
+            windowInsets = WindowInsets(0, 0, 0, 0),
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(64.dp)
+              .testTag("bottom_nav_bar")
+          ) {
             NavigationBarItem(
               selected = currentTab == "HOME",
               onClick = { currentTab = "HOME" },
               icon = {
                 Icon(
                   imageVector = if (currentTab == "HOME") Icons.Filled.HealthAndSafety else Icons.Outlined.HealthAndSafety,
-                  contentDescription = "Home"
+                  contentDescription = "Home",
+                  modifier = Modifier.size(22.dp)
                 )
               },
               label = {
                 Text(
                   "Home",
                   style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = if (currentTab == "HOME") FontWeight.Bold else FontWeight.Medium
+                    fontWeight = if (currentTab == "HOME") FontWeight.Black else FontWeight.Medium
                   )
                 )
               },
               colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MedicalBluePrimary,
-                selectedTextColor = MedicalBluePrimary,
-                indicatorColor = MedicalBlueLight
+                selectedIconColor = WhoopRecoveryGreen,
+                selectedTextColor = WhoopRecoveryGreen,
+                unselectedIconColor = WhoopTextMuted,
+                unselectedTextColor = WhoopTextMuted,
+                indicatorColor = WhoopSurfaceElevated
               ),
-              modifier = Modifier.testTag("nav_home")
+              modifier = Modifier
+                .appTactile(0.92f)
+                .testTag("nav_home")
             )
 
             NavigationBarItem(
@@ -129,23 +156,28 @@ fun VWatcherApp(
               icon = {
                 Icon(
                   imageVector = if (currentTab == "HEALTH") Icons.Filled.FactCheck else Icons.Outlined.FactCheck,
-                  contentDescription = "Health & Exam"
+                  contentDescription = "Health & Exam",
+                  modifier = Modifier.size(22.dp)
                 )
               },
               label = {
                 Text(
                   "Exam",
                   style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = if (currentTab == "HEALTH") FontWeight.Bold else FontWeight.Medium
+                    fontWeight = if (currentTab == "HEALTH") FontWeight.Black else FontWeight.Medium
                   )
                 )
               },
               colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MedicalBluePrimary,
-                selectedTextColor = MedicalBluePrimary,
-                indicatorColor = MedicalBlueLight
+                selectedIconColor = WhoopStrainBlue,
+                selectedTextColor = WhoopStrainBlue,
+                unselectedIconColor = WhoopTextMuted,
+                unselectedTextColor = WhoopTextMuted,
+                indicatorColor = WhoopSurfaceElevated
               ),
-              modifier = Modifier.testTag("nav_health")
+              modifier = Modifier
+                .appTactile(0.92f)
+                .testTag("nav_health")
             )
 
             NavigationBarItem(
@@ -157,7 +189,7 @@ fun VWatcherApp(
                     val activeCount = uiState.cases.count { it.status != com.example.model.CaseStatus.RESOLVED }
                     if (activeCount > 0) {
                       Badge(
-                        containerColor = ClinicalCoralCritical,
+                        containerColor = WhoopAlertCoral,
                         contentColor = Color.White
                       ) {
                         Text(
@@ -173,7 +205,8 @@ fun VWatcherApp(
                 ) {
                   Icon(
                     imageVector = if (currentTab == "CASES") Icons.Filled.Assignment else Icons.Outlined.Assignment,
-                    contentDescription = "Cases"
+                    contentDescription = "Cases",
+                    modifier = Modifier.size(22.dp)
                   )
                 }
               },
@@ -181,16 +214,20 @@ fun VWatcherApp(
                 Text(
                   "Cases",
                   style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = if (currentTab == "CASES") FontWeight.Bold else FontWeight.Medium
+                    fontWeight = if (currentTab == "CASES") FontWeight.Black else FontWeight.Medium
                   )
                 )
               },
               colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MedicalBluePrimary,
-                selectedTextColor = MedicalBluePrimary,
-                indicatorColor = MedicalBlueLight
+                selectedIconColor = WhoopWarningAmber,
+                selectedTextColor = WhoopWarningAmber,
+                unselectedIconColor = WhoopTextMuted,
+                unselectedTextColor = WhoopTextMuted,
+                indicatorColor = WhoopSurfaceElevated
               ),
-              modifier = Modifier.testTag("nav_cases")
+              modifier = Modifier
+                .appTactile(0.92f)
+                .testTag("nav_cases")
             )
 
             NavigationBarItem(
@@ -199,23 +236,28 @@ fun VWatcherApp(
               icon = {
                 Icon(
                   imageVector = if (currentTab == "IMMUNE") Icons.Filled.Biotech else Icons.Outlined.Biotech,
-                  contentDescription = "Immune"
+                  contentDescription = "Immune",
+                  modifier = Modifier.size(22.dp)
                 )
               },
               label = {
                 Text(
                   "Immune",
                   style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = if (currentTab == "IMMUNE") FontWeight.Bold else FontWeight.Medium
+                    fontWeight = if (currentTab == "IMMUNE") FontWeight.Black else FontWeight.Medium
                   )
                 )
               },
               colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MedicalBluePrimary,
-                selectedTextColor = MedicalBluePrimary,
-                indicatorColor = MedicalBlueLight
+                selectedIconColor = WhoopSleepTeal,
+                selectedTextColor = WhoopSleepTeal,
+                unselectedIconColor = WhoopTextMuted,
+                unselectedTextColor = WhoopTextMuted,
+                indicatorColor = WhoopSurfaceElevated
               ),
-              modifier = Modifier.testTag("nav_immune")
+              modifier = Modifier
+                .appTactile(0.92f)
+                .testTag("nav_immune")
             )
 
             NavigationBarItem(
@@ -224,42 +266,49 @@ fun VWatcherApp(
               icon = {
                 Icon(
                   imageVector = if (currentTab == "MEMORY") Icons.Filled.Psychology else Icons.Outlined.Psychology,
-                  contentDescription = "Memory"
+                  contentDescription = "Memory",
+                  modifier = Modifier.size(22.dp)
                 )
               },
               label = {
                 Text(
                   "Memory",
                   style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = if (currentTab == "MEMORY") FontWeight.Bold else FontWeight.Medium
+                    fontWeight = if (currentTab == "MEMORY") FontWeight.Black else FontWeight.Medium
                   )
                 )
               },
               colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MemoryLavender,
                 selectedTextColor = MemoryLavender,
-                indicatorColor = MemoryLavenderLight
+                unselectedIconColor = WhoopTextMuted,
+                unselectedTextColor = WhoopTextMuted,
+                indicatorColor = WhoopSurfaceElevated
               ),
-              modifier = Modifier.testTag("nav_memory")
+              modifier = Modifier
+                .appTactile(0.92f)
+                .testTag("nav_memory")
             )
           }
-        },
-        modifier = modifier.fillMaxSize()
-      ) { innerPadding ->
-        Box(
-          modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-        ) {
-          when (currentTab) {
-            "HOME" -> HomeScreen(
-              uiState = uiState,
-              onRunCheck = { viewModel.runDeviceCheck() },
-              onSimulateAnomaly = { viewModel.simulateUnusualActivity() },
-              onNavigateToTab = { currentTab = it },
-              onOpenNotifications = { isNotificationsOpen = true },
-              onOpenDiagnostics = { isDiagnosticsOpen = true }
-            )
+        }
+      },
+      modifier = modifier.fillMaxSize()
+    ) { innerPadding ->
+      Box(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(innerPadding)
+      ) {
+        when (currentTab) {
+          "HOME" -> HomeScreen(
+            uiState = uiState,
+            onRunCheck = { viewModel.runDeviceCheck() },
+            onSimulateAnomaly = { viewModel.simulateUnusualActivity() },
+            onNavigateToTab = { currentTab = it },
+            onOpenNotifications = { isNotificationsOpen = true },
+            onOpenDiagnostics = { isDiagnosticsOpen = true },
+            onRefreshTelemetry = { viewModel.refreshRealTelemetry() }
+          )
 
             "HEALTH" -> HealthExamScreen(
               uiState = uiState,

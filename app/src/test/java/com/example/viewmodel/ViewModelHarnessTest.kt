@@ -193,4 +193,21 @@ class ViewModelHarnessTest {
     vm.dismissExamDialog()
     assertFalse(vm.uiState.value.isExamInProgress)
   }
+
+  @Test
+  fun exam_containsExactlySevenPointsPlusTerminalCompletion() {
+    val allSteps = ExamSequenceStep.values()
+    val examinationSteps = allSteps.filter { it != ExamSequenceStep.EXAMINATION_COMPLETE }
+    assertEquals("Exactly 7 examination stages must exist", 7, examinationSteps.size)
+    assertTrue("CHECKING_RESOURCES must be present as resource baseline",
+      allSteps.contains(ExamSequenceStep.CHECKING_RESOURCES)
+    )
+
+    val vm = newVm()
+    val categories = vm.uiState.value.examCategories
+    assertEquals("Exactly 7 exam categories in UI state", 7, categories.size)
+    assertTrue("ec_resources must be present in categories",
+      categories.any { it.id == "ec_resources" }
+    )
+  }
 }

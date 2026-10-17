@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.*
+import com.example.ui.components.appTactile
 import com.example.ui.theme.*
 import com.example.viewmodel.VWatcherUiState
 
@@ -39,11 +40,11 @@ fun HealthExamScreen(
   Column(
     modifier = modifier
       .fillMaxSize()
-      .background(ClinicalBackground)
+      .background(WhoopBlackBg)
   ) {
     // Header
     Surface(
-      color = ClinicalBackground,
+      color = WhoopBlackBg,
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
@@ -52,24 +53,24 @@ fun HealthExamScreen(
           .padding(horizontal = 20.dp, vertical = 14.dp)
       ) {
         Text(
-          text = "CLINICAL HEALTH & EXAM",
+          text = "BIOMETRIC HEALTH & EXAM",
           style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
-            color = MedicalBluePrimary
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.4.sp,
+            color = WhoopStrainBlue
           )
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
           text = "Device Examination",
           style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Bold,
-            color = ClinicalTextPrimary
+            fontWeight = FontWeight.Black,
+            color = WhoopTextPrimary
           )
         )
         Text(
           text = "Comprehensive diagnostic review across applications, permissions, and network",
-          style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextSecondary)
+          style = MaterialTheme.typography.bodySmall.copy(color = WhoopTextSecondary)
         )
       }
     }
@@ -93,31 +94,41 @@ fun HealthExamScreen(
         selected = selectedSubTab == "EXAM",
         onClick = { selectedSubTab = "EXAM" },
         text = { Text("Device Exam", fontWeight = if (selectedSubTab == "EXAM") FontWeight.Bold else FontWeight.Normal) },
-        modifier = Modifier.testTag("tab_device_exam")
+        modifier = Modifier
+          .appTactile(0.95f)
+          .testTag("tab_device_exam")
       )
       Tab(
         selected = selectedSubTab == "APPS",
         onClick = { selectedSubTab = "APPS" },
         text = { Text("App Health (${uiState.applications.size})", fontWeight = if (selectedSubTab == "APPS") FontWeight.Bold else FontWeight.Normal) },
-        modifier = Modifier.testTag("tab_app_health")
+        modifier = Modifier
+          .appTactile(0.95f)
+          .testTag("tab_app_health")
       )
       Tab(
         selected = selectedSubTab == "PERMISSIONS",
         onClick = { selectedSubTab = "PERMISSIONS" },
         text = { Text("Permissions (${uiState.permissions.size})", fontWeight = if (selectedSubTab == "PERMISSIONS") FontWeight.Bold else FontWeight.Normal) },
-        modifier = Modifier.testTag("tab_permissions")
+        modifier = Modifier
+          .appTactile(0.95f)
+          .testTag("tab_permissions")
       )
       Tab(
         selected = selectedSubTab == "NETWORK",
         onClick = { selectedSubTab = "NETWORK" },
         text = { Text("Network", fontWeight = if (selectedSubTab == "NETWORK") FontWeight.Bold else FontWeight.Normal) },
-        modifier = Modifier.testTag("tab_network")
+        modifier = Modifier
+          .appTactile(0.95f)
+          .testTag("tab_network")
       )
       Tab(
         selected = selectedSubTab == "HISTORY",
         onClick = { selectedSubTab = "HISTORY" },
         text = { Text("History", fontWeight = if (selectedSubTab == "HISTORY") FontWeight.Bold else FontWeight.Normal) },
-        modifier = Modifier.testTag("tab_history")
+        modifier = Modifier
+          .appTactile(0.95f)
+          .testTag("tab_history")
       )
     }
 
@@ -304,6 +315,7 @@ private fun ExamCategoryCard(
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier
       .fillMaxWidth()
+      .appTactile(0.97f)
       .clickable { onClick() }
       .testTag("exam_cat_${category.id}")
   ) {
@@ -386,7 +398,10 @@ private fun ApplicationRecordCard(
     colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
     border = BorderStroke(1.dp, if (isIsolated) ClinicalCoralCritical.copy(alpha = 0.5f) else ClinicalOutline),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    modifier = Modifier.fillMaxWidth().testTag("app_card_${app.id}")
+    modifier = Modifier
+      .fillMaxWidth()
+      .appTactile(0.98f)
+      .testTag("app_card_${app.id}")
   ) {
     Column(
       modifier = Modifier
@@ -495,6 +510,7 @@ private fun ApplicationRecordCard(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             modifier = Modifier
               .height(44.dp)
+              .appTactile(0.93f)
               .testTag("release_app_button_${app.id}")
           ) {
             Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -513,6 +529,7 @@ private fun ApplicationRecordCard(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             modifier = Modifier
               .height(44.dp)
+              .appTactile(0.93f)
               .testTag("isolate_app_button_${app.id}")
           ) {
             Icon(Icons.Outlined.Shield, contentDescription = null, modifier = Modifier.size(16.dp))

@@ -184,11 +184,12 @@ data class SimulatedNotification(
 )
 
 enum class ExamSequenceStep(val title: String, val subtitle: String, val progress: Float) {
-  CHECKING_APPLICATIONS("CHECKING APPLICATIONS", "Observing process signatures and background behaviors", 0.16f),
-  CHECKING_PERMISSIONS("CHECKING PERMISSIONS", "Comparing runtime privilege frequency with physiological baseline", 0.33f),
-  CHECKING_NETWORK("CHECKING NETWORK", "Evaluating protective barrier integrity and connection telemetry", 0.50f),
-  CHECKING_SYSTEM("CHECKING SYSTEM", "Examining system partitions and cryptographic integrity", 0.67f),
-  CHECKING_BEHAVIOR("CHECKING BEHAVIOR", "Context cells correlating temporal heuristics", 0.84f),
+  CHECKING_APPLICATIONS("CHECKING APPLICATIONS", "Observing process signatures and background behaviors", 0.14f),
+  CHECKING_PERMISSIONS("CHECKING PERMISSIONS", "Comparing runtime privilege frequency with physiological baseline", 0.28f),
+  CHECKING_NETWORK("CHECKING NETWORK", "Evaluating protective barrier integrity and connection telemetry", 0.42f),
+  CHECKING_SYSTEM("CHECKING SYSTEM", "Examining system partitions and cryptographic integrity", 0.57f),
+  CHECKING_BEHAVIOR("CHECKING BEHAVIOR", "Context cells correlating temporal heuristics", 0.71f),
+  CHECKING_RESOURCES("CHECKING RESOURCE & THERMAL BASELINE", "Sampling RAM allocation, memory pressure and thermal equilibrium", 0.85f),
   CHECKING_IMMUNE_MEMORY("CHECKING IMMUNE MEMORY", "Cross-referencing observed patterns with memory cells", 1.0f),
   EXAMINATION_COMPLETE("EXAMINATION COMPLETE", "Device diagnosis and physiological report finalized", 1.0f)
 }

@@ -2,47 +2,91 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary Clinical Palette - Soft Medical Blues & Teals
-val MedicalBluePrimary = Color(0xFF0284C7)
-val MedicalBlueDark = Color(0xFF0369A1)
-val MedicalBlueDeep = Color(0xFF0C4A6E)
-val MedicalBlueGlow = Color(0xFF38BDF8)
-val MedicalBlueLight = Color(0xFFE0F2FE)
-val MedicalBlueContainer = Color(0xFFF0F9FF)
+// WHOOP-Inspired Pro Dark Aesthetic Palette
+// Deep OLED blacks, dark graphite surfaces, crisp contrast
+val WhoopBlackBg = Color(0xFF0A0B0E)
+val WhoopSurface = Color(0xFF13151A)
+val WhoopSurfaceElevated = Color(0xFF1B1E26)
+val WhoopSurfaceBorder = Color(0xFF262A36)
+val WhoopSurfaceBorderSubtle = Color(0xFF1D212A)
 
-val MedicalTealSecondary = Color(0xFF0D9488)
-val MedicalTealDark = Color(0xFF0F766E)
-val MedicalTealDeep = Color(0xFF134E4A)
-val MedicalTealGlow = Color(0xFF2DD4BF)
-val MedicalTealLight = Color(0xFFCCFBF1)
-val MedicalTealContainer = Color(0xFFF0FDFA)
+// Apple-like Frosted Glass & Surface Refinement Tokens
+val AppleGlassBackground = Color(0x9913151A)
+val AppleGlassBorder = Color(0x33FFFFFF)
+val AppleGlassHighlight = Color(0x1AFFFFFF)
+val AppleGlassPillInactive = Color(0x1F222834)
+val AppleGlassPillBorder = Color(0x2EFFFFFF)
+val AppleGlassPillBorderActive = Color(0x5500B4D8)
+val AppleCardGradientStart = Color(0xFF161922)
+val AppleCardGradientEnd = Color(0xFF101217)
 
-// Clinical Semantic Statuses
-val ClinicalGreenHealthy = Color(0xFF15803D)
-val ClinicalGreenGlow = Color(0xFF4ADE80)
-val ClinicalGreenLight = Color(0xFFDCFCE7)
+// WHOOP Core Signature Biometric Telemetry Accents
+// Recovery Spectrum: Vibrant Green, Amber, Coral
+val WhoopRecoveryGreen = Color(0xFF22C55E)
+val WhoopRecoveryGreenGlow = Color(0xFF4ADE80)
+val WhoopRecoveryGreenSubtle = Color(0xFF14532D)
 
-val ClinicalAmberAttention = Color(0xFFB45309)
-val ClinicalAmberGlow = Color(0xFFFBBF24)
-val ClinicalAmberLight = Color(0xFFFEF3C7)
+val WhoopStrainBlue = Color(0xFF00B4D8)
+val WhoopStrainBlueGlow = Color(0xFF38BDF8)
+val WhoopStrainBlueDark = Color(0xFF0369A1)
+val WhoopStrainBlueSubtle = Color(0xFF0C4A6E)
 
-val ClinicalCoralCritical = Color(0xFFBE123C)
-val ClinicalCoralLight = Color(0xFFFFE4E6)
+val WhoopSleepTeal = Color(0xFF2DD4BF)
+val WhoopSleepTealDark = Color(0xFF0F766E)
 
-val MemoryLavender = Color(0xFF6D28D9)
+val WhoopWarningAmber = Color(0xFFF59E0B)
+val WhoopWarningAmberGlow = Color(0xFFFBBF24)
+
+val WhoopAlertCoral = Color(0xFFEF4444)
+val WhoopAlertCoralGlow = Color(0xFFF87171)
+
+// Semantic Dark Neutrals & High Legibility Typography
+val WhoopTextPrimary = Color(0xFFF8FAFC)
+val WhoopTextSecondary = Color(0xFF94A3B8)
+val WhoopTextMuted = Color(0xFF64748B)
+val WhoopTextDim = Color(0xFF475569)
+
+// Retain aliases for backward compatibility across all modules while mapped to WHOOP tokens
+val MedicalBluePrimary = WhoopStrainBlue
+val MedicalBlueDark = WhoopStrainBlueDark
+val MedicalBlueDeep = WhoopStrainBlueSubtle
+val MedicalBlueGlow = WhoopStrainBlueGlow
+val MedicalBlueLight = Color(0xFF1E293B)
+val MedicalBlueContainer = WhoopSurfaceElevated
+
+val MedicalTealSecondary = WhoopSleepTeal
+val MedicalTealDark = WhoopSleepTealDark
+val MedicalTealDeep = Color(0xFF115E59)
+val MedicalTealGlow = Color(0xFF5EEAD4)
+val MedicalTealLight = Color(0xFF134E4A)
+val MedicalTealContainer = WhoopSurfaceElevated
+
+val ClinicalGreenHealthy = WhoopRecoveryGreen
+val ClinicalGreenGlow = WhoopRecoveryGreenGlow
+val ClinicalGreenLight = Color(0xFF14532D)
+
+val ClinicalAmberAttention = WhoopWarningAmber
+val ClinicalAmberGlow = WhoopWarningAmberGlow
+val ClinicalAmberLight = Color(0xFF451A03)
+
+val ClinicalCoralCritical = WhoopAlertCoral
+val ClinicalCoralLight = Color(0xFF450A0A)
+
+val MemoryLavender = Color(0xFF8B5CF6)
 val MemoryLavenderGlow = Color(0xFFA78BFA)
-val MemoryLavenderLight = Color(0xFFF3E8FF)
+val MemoryLavenderLight = Color(0xFF2E1065)
 
-// Neutrals & Clinical Surfaces
-val ClinicalBackground = Color(0xFFF8FAFC)
-val ClinicalSurface = Color(0xFFFFFFFF)
-val ClinicalSurfaceVariant = Color(0xFFF1F5F9)
-val ClinicalSurfaceElevated = Color(0xFFFFFFFF)
-val ClinicalOutline = Color(0xFFE2E8F0)
-val ClinicalOutlineSoft = Color(0xFFF1F5F9)
-val ClinicalCardBorder = Color(0xFFE2E8F0)
-val ClinicalGlassSurface = Color(0xF0FFFFFF)
+// Surfaces mapped to WHOOP Dark Precision
+val ClinicalBackground = WhoopBlackBg
+val ClinicalSurface = WhoopSurface
+val ClinicalSurfaceVariant = WhoopSurfaceElevated
+val ClinicalSurfaceElevated = WhoopSurfaceElevated
+val ClinicalOutline = WhoopSurfaceBorder
+val ClinicalOutlineSoft = WhoopSurfaceBorderSubtle
+val ClinicalCardBorder = WhoopSurfaceBorder
+val ClinicalGlassSurface = Color(0xEB13151A)
 
-val ClinicalTextPrimary = Color(0xFF0F172A)
-val ClinicalTextSecondary = Color(0xFF475569)
-val ClinicalTextMuted = Color(0xFF94A3B8)
+val ClinicalTextPrimary = WhoopTextPrimary
+val ClinicalTextSecondary = WhoopTextSecondary
+val ClinicalTextMuted = WhoopTextMuted
+

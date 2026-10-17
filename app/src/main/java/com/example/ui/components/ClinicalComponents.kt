@@ -8,6 +8,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +42,169 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Ultra-refined clinical top bar with live status heartbeat
+ * Interactive tactile bounce physics modifier for native app feel
+ */
+@Composable
+fun Modifier.appTactile(
+  scaleDown: Float = 0.96f
+): Modifier {
+  val interactionSource = remember { MutableInteractionSource() }
+  val isPressed by interactionSource.collectIsPressedAsState()
+  val scale by animateFloatAsState(
+    targetValue = if (isPressed) scaleDown else 1f,
+    animationSpec = spring(
+      dampingRatio = Spring.DampingRatioMediumBouncy,
+      stiffness = Spring.StiffnessLow
+    ),
+    label = "app_tactile_scale"
+  )
+  return this.graphicsLayer {
+    scaleX = scale
+    scaleY = scale
+  }
+}
+
+/**
+ * Animated real-time bio-signal telemetry heartbeat radar strip
+ */
+@Composable
+fun BioSignalPulseStrip(
+  isObserving: Boolean = true,
+  condition: DeviceCondition = DeviceCondition.HEALTHY,
+  modifier: Modifier = Modifier
+) {
+  val infiniteTransition = rememberInfiniteTransition(label = "ecg_wave")
+  val phaseOffset by infiniteTransition.animateFloat(
+    initialValue = 0f,
+    targetValue = 1f,
+    animationSpec = infiniteRepeatable(
+      animation = tween(2600, easing = LinearEasing),
+      repeatMode = RepeatMode.Restart
+    ),
+    label = "ecg_phase"
+  )
+
+  val lineColor = when (condition) {
+    DeviceCondition.HEALTHY -> WhoopRecoveryGreen
+    DeviceCondition.ATTENTION, DeviceCondition.UNDER_REVIEW -> WhoopWarningAmber
+    DeviceCondition.CONTAINING -> WhoopStrainBlue
+    DeviceCondition.RECOVERING -> WhoopSleepTeal
+  }
+
+  Surface(
+    shape = RoundedCornerShape(14.dp),
+    color = WhoopSurface,
+    border = BorderStroke(1.dp, Color(0x28FFFFFF)),
+    shadowElevation = 2.dp,
+    modifier = modifier
+      .fillMaxWidth()
+      .height(36.dp)
+      .shadow(
+        elevation = 4.dp,
+        shape = RoundedCornerShape(14.dp),
+        ambientColor = Color.Black.copy(alpha = 0.5f),
+        spotColor = Color.Black.copy(alpha = 0.5f)
+      )
+  ) {
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(
+          Brush.horizontalGradient(
+            colors = listOf(
+              Color(0xFF141720),
+              Color(0xFF191D28),
+              Color(0xFF141720)
+            )
+          )
+        )
+    ) {
+      Row(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          val pulseDotAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.4f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+              animation = tween(900, easing = FastOutSlowInEasing),
+              repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulse_dot_alpha"
+          )
+          Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(12.dp)
+          ) {
+            Box(
+              modifier = Modifier
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(lineColor.copy(alpha = pulseDotAlpha * 0.35f))
+            )
+            Box(
+              modifier = Modifier
+                .size(5.dp)
+                .clip(CircleShape)
+                .background(lineColor)
+            )
+          }
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+            text = "TELEMETRIA AO VIVO",
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontSize = 9.sp,
+              fontWeight = FontWeight.Black,
+              letterSpacing = 1.1.sp,
+              color = WhoopTextSecondary
+            )
+          )
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Canvas(
+          modifier = Modifier
+            .weight(1f)
+            .height(20.dp)
+        ) {
+          val w = size.width
+          val h = size.height
+          val midY = h / 2f
+          val path = Path()
+          val segments = 24
+          for (i in 0..segments) {
+            val x = (i.toFloat() / segments) * w
+            val normalized = ((i.toFloat() / segments) + phaseOffset) % 1f
+            val y = when {
+              normalized in 0.38f..0.42f -> midY - h * 0.44f
+              normalized in 0.42f..0.47f -> midY + h * 0.46f
+              normalized in 0.47f..0.52f -> midY - h * 0.30f
+              else -> midY + (sin((normalized * 2.0 * Math.PI).toFloat()) * h * 0.08f)
+            }
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+          }
+          // Ambient glow behind line
+          drawPath(
+            path = path,
+            color = lineColor.copy(alpha = 0.25f),
+            style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
+          )
+          // Crisp foreground line
+          drawPath(
+            path = path,
+            color = lineColor.copy(alpha = 0.95f),
+            style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
+          )
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Ultra-refined clinical top bar with live status heartbeat & quick app controls
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +212,7 @@ fun ClinicalTopBar(
   onNotificationsClick: () -> Unit,
   notificationCount: Int,
   onDiagnosticsClick: () -> Unit = {},
+  onRefreshTelemetry: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val infiniteTransition = rememberInfiniteTransition(label = "top_bar_pulse")
@@ -60,94 +226,151 @@ fun ClinicalTopBar(
     label = "status_dot_alpha"
   )
 
+  var refreshRotation by remember { mutableFloatStateOf(0f) }
+  val animatedRotation by animateFloatAsState(
+    targetValue = refreshRotation,
+    animationSpec = spring(
+      dampingRatio = Spring.DampingRatioMediumBouncy,
+      stiffness = Spring.StiffnessLow
+    ),
+    label = "refresh_rotation"
+  )
+
   Surface(
-    color = ClinicalBackground,
+    color = WhoopBlackBg,
+    border = BorderStroke(1.dp, Color(0x1AFFFFFF)),
+    shadowElevation = 0.dp,
     modifier = modifier.fillMaxWidth()
   ) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 20.dp, vertical = 12.dp),
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color(0xFF161922),
+              Color(0xFF0F1117)
+            )
+          )
+        )
+        .padding(horizontal = 16.dp, vertical = 12.dp),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
-      Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+          contentAlignment = Alignment.Center,
+          modifier = Modifier
+            .size(40.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(Color(0x331F2937))
+            .border(1.dp, Color(0x2EFFFFFF), RoundedCornerShape(13.dp))
+            .shadow(4.dp, RoundedCornerShape(13.dp), ambientColor = Color.Black.copy(alpha = 0.4f), spotColor = Color.Black.copy(alpha = 0.4f))
+        ) {
           Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(16.dp)
-          ) {
-            Box(
-              modifier = Modifier
-                .size(14.dp)
-                .clip(CircleShape)
-                .background(ClinicalGreenHealthy.copy(alpha = pulseAlpha * 0.35f))
-            )
-            Box(
-              modifier = Modifier
-                .size(7.dp)
-                .clip(CircleShape)
-                .background(ClinicalGreenHealthy)
-            )
-          }
-          Spacer(modifier = Modifier.width(8.dp))
-          Text(
-            text = "V-WATCHER",
-            style = MaterialTheme.typography.titleMedium.copy(
-              fontWeight = FontWeight.Bold,
-              letterSpacing = 1.4.sp,
-              color = ClinicalTextPrimary
-            )
+            modifier = Modifier
+              .size(28.dp)
+              .clip(CircleShape)
+              .background(WhoopRecoveryGreen.copy(alpha = pulseAlpha * 0.25f))
           )
-          Spacer(modifier = Modifier.width(8.dp))
-          Surface(
-            color = MedicalBlueLight.copy(alpha = 0.8f),
-            shape = RoundedCornerShape(6.dp)
-          ) {
-            Text(
-              text = "PRO",
-              style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                color = MedicalBlueDark,
-                letterSpacing = 0.5.sp
-              ),
-              modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
-            )
-          }
+          Icon(
+            imageVector = Icons.Filled.Shield,
+            contentDescription = null,
+            tint = WhoopRecoveryGreen,
+            modifier = Modifier.size(20.dp)
+          )
         }
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-          text = "Your phone's immune system • Clinical grade",
-          style = MaterialTheme.typography.bodySmall.copy(
-            color = ClinicalTextSecondary,
-            fontSize = 11.5.sp
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+              text = "V-WATCHER",
+              style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.4.sp,
+                color = WhoopTextPrimary
+              )
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Surface(
+              color = Color(0x2800B4D8),
+              border = BorderStroke(1.dp, WhoopStrainBlue.copy(alpha = 0.4f)),
+              shape = RoundedCornerShape(6.dp)
+            ) {
+              Text(
+                text = "PRO SENSOR",
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontSize = 8.5.sp,
+                  fontWeight = FontWeight.Bold,
+                  color = WhoopStrainBlue,
+                  letterSpacing = 0.6.sp
+                ),
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+              )
+            }
+          }
+          Text(
+            text = "Autonomous Device Telemetry",
+            style = MaterialTheme.typography.bodySmall.copy(
+              color = WhoopTextSecondary,
+              fontSize = 11.sp
+            )
           )
-        )
+        }
       }
 
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
+        // Quick Telemetry Refresh Button with 360 rotation animation
+        Surface(
+          shape = CircleShape,
+          color = Color(0x331E2330),
+          border = BorderStroke(1.dp, Color(0x26FFFFFF)),
+          modifier = Modifier
+            .appTactile(0.92f)
+            .shadow(2.dp, CircleShape, ambientColor = Color.Black.copy(alpha = 0.4f), spotColor = Color.Black.copy(alpha = 0.4f))
+        ) {
+          IconButton(
+            onClick = {
+              refreshRotation += 360f
+              onRefreshTelemetry()
+            },
+            modifier = Modifier
+              .size(38.dp)
+              .graphicsLayer { rotationZ = animatedRotation }
+              .testTag("refresh_telemetry_top_button")
+          ) {
+            Icon(
+              imageVector = Icons.Outlined.Refresh,
+              contentDescription = "Atualizar Telemetria",
+              tint = WhoopTextPrimary,
+              modifier = Modifier.size(19.dp)
+            )
+          }
+        }
+
         // Technical Diagnostics Button
         Surface(
           shape = CircleShape,
-          color = ClinicalSurface,
-          border = BorderStroke(1.dp, ClinicalOutline),
-          shadowElevation = 1.dp
+          color = Color(0x331E2330),
+          border = BorderStroke(1.dp, Color(0x26FFFFFF)),
+          modifier = Modifier
+            .appTactile(0.92f)
+            .shadow(2.dp, CircleShape, ambientColor = Color.Black.copy(alpha = 0.4f), spotColor = Color.Black.copy(alpha = 0.4f))
         ) {
           IconButton(
             onClick = onDiagnosticsClick,
             modifier = Modifier
-              .size(42.dp)
+              .size(38.dp)
               .testTag("diagnostics_top_button")
           ) {
             Icon(
               imageVector = Icons.Outlined.Analytics,
               contentDescription = "Technical Diagnostics",
-              tint = MedicalBluePrimary,
-              modifier = Modifier.size(20.dp)
+              tint = WhoopStrainBlue,
+              modifier = Modifier.size(19.dp)
             )
           }
         }
@@ -155,24 +378,26 @@ fun ClinicalTopBar(
         // Notifications Button
         Surface(
           shape = CircleShape,
-          color = ClinicalSurface,
-          border = BorderStroke(1.dp, ClinicalOutline),
-          shadowElevation = 1.dp
+          color = Color(0x331E2330),
+          border = BorderStroke(1.dp, Color(0x26FFFFFF)),
+          modifier = Modifier
+            .appTactile(0.92f)
+            .shadow(2.dp, CircleShape, ambientColor = Color.Black.copy(alpha = 0.4f), spotColor = Color.Black.copy(alpha = 0.4f))
         ) {
           IconButton(
             onClick = onNotificationsClick,
             modifier = Modifier
-              .size(42.dp)
+              .size(38.dp)
               .testTag("notifications_button")
           ) {
             BadgedBox(
               badge = {
                 if (notificationCount > 0) {
                   Badge(
-                    containerColor = MedicalBluePrimary,
+                    containerColor = WhoopAlertCoral,
                     contentColor = Color.White
                   ) {
-                    Text(text = notificationCount.toString(), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(text = notificationCount.toString(), fontSize = 9.sp, fontWeight = FontWeight.Bold)
                   }
                 }
               }
@@ -180,8 +405,8 @@ fun ClinicalTopBar(
               Icon(
                 imageVector = Icons.Outlined.Notifications,
                 contentDescription = "Clinical notifications",
-                tint = ClinicalTextSecondary,
-                modifier = Modifier.size(20.dp)
+                tint = WhoopTextPrimary,
+                modifier = Modifier.size(19.dp)
               )
             }
           }
@@ -220,69 +445,85 @@ fun CircularHealthScoreGauge(
 
   val gaugeColor by animateColorAsState(
     targetValue = when (condition) {
-      DeviceCondition.HEALTHY -> ClinicalGreenHealthy
-      DeviceCondition.ATTENTION, DeviceCondition.UNDER_REVIEW -> ClinicalAmberAttention
-      DeviceCondition.CONTAINING -> MedicalBluePrimary
-      DeviceCondition.RECOVERING -> MedicalTealSecondary
+      DeviceCondition.HEALTHY -> WhoopRecoveryGreen
+      DeviceCondition.ATTENTION, DeviceCondition.UNDER_REVIEW -> WhoopWarningAmber
+      DeviceCondition.CONTAINING -> WhoopStrainBlue
+      DeviceCondition.RECOVERING -> WhoopSleepTeal
     },
     label = "gauge_color_anim"
   )
 
   val gaugeGlowColor = when (condition) {
-    DeviceCondition.HEALTHY -> ClinicalGreenGlow
-    DeviceCondition.ATTENTION, DeviceCondition.UNDER_REVIEW -> ClinicalAmberGlow
-    DeviceCondition.CONTAINING -> MedicalBlueGlow
-    DeviceCondition.RECOVERING -> MedicalTealGlow
+    DeviceCondition.HEALTHY -> WhoopRecoveryGreenGlow
+    DeviceCondition.ATTENTION, DeviceCondition.UNDER_REVIEW -> WhoopWarningAmberGlow
+    DeviceCondition.CONTAINING -> WhoopStrainBlueGlow
+    DeviceCondition.RECOVERING -> WhoopSleepTeal
   }
 
+  // WHOOP & Apple Signature Biometric Card Container
   Card(
     shape = RoundedCornerShape(24.dp),
-    colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
-    border = BorderStroke(1.dp, ClinicalOutline),
+    colors = CardDefaults.cardColors(containerColor = WhoopSurface),
+    border = BorderStroke(1.dp, Color(0x2EFFFFFF)),
     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     modifier = modifier
       .fillMaxWidth()
-      .shadow(6.dp, shape = RoundedCornerShape(24.dp), ambientColor = ClinicalOutline, spotColor = MedicalBlueLight.copy(alpha = 0.5f))
+      .shadow(
+        elevation = 8.dp,
+        shape = RoundedCornerShape(24.dp),
+        ambientColor = Color.Black.copy(alpha = 0.65f),
+        spotColor = Color.Black.copy(alpha = 0.65f)
+      )
   ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 24.dp, vertical = 22.dp),
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color(0xFF181C26),
+              Color(0xFF11141A)
+            )
+          )
+        )
+        .padding(horizontal = 20.dp, vertical = 22.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      // Header Label with clinical badge
+      // WHOOP-style metric header with status pill
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Icon(
-            imageVector = Icons.Default.MonitorHeart,
-            contentDescription = null,
-            tint = MedicalBluePrimary,
-            modifier = Modifier.size(16.dp)
-          )
-          Spacer(modifier = Modifier.width(6.dp))
+        Column {
           Text(
-            text = "DEVICE PHYSIOLOGICAL SCORE",
+            text = "PHYSIOLOGICAL STATUS",
             style = MaterialTheme.typography.labelSmall.copy(
               fontWeight = FontWeight.Bold,
-              letterSpacing = 1.2.sp,
-              color = ClinicalTextSecondary,
+              letterSpacing = 1.4.sp,
+              color = WhoopTextSecondary,
               fontSize = 11.sp
+            )
+          )
+          Text(
+            text = "IMMUNE RECOVERY DIAL",
+            style = MaterialTheme.typography.titleSmall.copy(
+              fontWeight = FontWeight.Black,
+              letterSpacing = 0.5.sp,
+              color = WhoopTextPrimary,
+              fontSize = 14.sp
             )
           )
         }
 
         Surface(
-          color = gaugeColor.copy(alpha = 0.12f),
-          border = BorderStroke(0.8.dp, gaugeColor.copy(alpha = 0.35f)),
-          shape = RoundedCornerShape(12.dp)
+          color = gaugeColor.copy(alpha = 0.15f),
+          border = BorderStroke(1.dp, gaugeColor.copy(alpha = 0.4f)),
+          shape = RoundedCornerShape(20.dp)
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
           ) {
             Box(
               modifier = Modifier
@@ -290,72 +531,73 @@ fun CircularHealthScoreGauge(
                 .clip(CircleShape)
                 .background(gaugeColor)
             )
-            Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
               text = condition.displayName.uppercase(),
               style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
                 color = gaugeColor,
-                fontSize = 10.sp,
-                letterSpacing = 0.5.sp
+                fontSize = 10.5.sp,
+                letterSpacing = 0.6.sp
               )
             )
           }
         }
       }
 
-      Spacer(modifier = Modifier.height(18.dp))
+      Spacer(modifier = Modifier.height(20.dp))
 
-      // Concentric Multi-Layer Clinical Radial Dial
+      // WHOOP Precision Circular Dial with Dark Matte Track and High-Luminance Glow
       Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(190.dp)
+        modifier = Modifier.size(210.dp)
       ) {
-        Canvas(modifier = Modifier.size(175.dp)) {
-          val strokeWidth = 14.dp.toPx()
+        Canvas(modifier = Modifier.size(195.dp)) {
+          val strokeWidth = 16.dp.toPx()
           val radius = (size.minDimension - strokeWidth) / 2f
           val centerOffset = Offset(size.width / 2f, size.height / 2f)
 
-          // 1. Outermost subtle calibration tick ring
-          val tickCount = 48
+          // 1. Precise calibration markers (WHOOP tick marks)
+          val tickCount = 60
           for (i in 0 until tickCount) {
             val angle = (i * (2.0 * Math.PI / tickCount)).toFloat()
-            val outerRadius = radius + 11.dp.toPx()
-            val innerRadius = outerRadius - if (i % 6 == 0) 5.dp.toPx() else 3.dp.toPx()
+            val outerRadius = radius + 12.dp.toPx()
+            val isMajor = i % 5 == 0
+            val innerRadius = outerRadius - if (isMajor) 6.dp.toPx() else 3.dp.toPx()
             val startX = centerOffset.x + innerRadius * cos(angle)
             val startY = centerOffset.y + innerRadius * sin(angle)
             val endX = centerOffset.x + outerRadius * cos(angle)
             val endY = centerOffset.y + outerRadius * sin(angle)
 
             drawLine(
-              color = ClinicalOutline,
+              color = if (isMajor) WhoopSurfaceBorder.copy(alpha = 0.9f) else WhoopSurfaceBorderSubtle.copy(alpha = 0.6f),
               start = Offset(startX, startY),
               end = Offset(endX, endY),
-              strokeWidth = 1.2.dp.toPx()
+              strokeWidth = if (isMajor) 1.5.dp.toPx() else 1.dp.toPx()
             )
           }
 
-          // 2. Faint ambient glow behind progress track
+          // 2. Ambient neon glow behind the progress arc (WHOOP style glow on dark surface)
           drawCircle(
-            color = gaugeColor.copy(alpha = 0.05f),
+            color = gaugeColor.copy(alpha = 0.08f),
             radius = radius * breathScale,
             center = centerOffset,
-            style = Stroke(width = strokeWidth * 1.6f)
+            style = Stroke(width = strokeWidth * 1.8f)
           )
 
-          // 3. Track Channel background
+          // 3. Dark Matte Base Track
           drawCircle(
-            color = ClinicalSurfaceVariant,
+            color = WhoopSurfaceElevated,
             radius = radius,
             center = centerOffset,
             style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
           )
 
-          // 4. Progress Arc with gradient
+          // 4. Vibrant Biometric Recovery Arc
           val sweepAngle = (animatedScore / 100f) * 360f
           val gradient = Brush.sweepGradient(
             colors = listOf(
-              gaugeColor.copy(alpha = 0.85f),
+              gaugeColor.copy(alpha = 0.75f),
               gaugeGlowColor,
               gaugeColor
             ),
@@ -372,50 +614,50 @@ fun CircularHealthScoreGauge(
             style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
           )
 
-          // 5. Subtle Inner ring
+          // 5. Subtle concentric inner track divider
           drawCircle(
-            color = ClinicalOutlineSoft,
-            radius = radius - strokeWidth - 6.dp.toPx(),
+            color = WhoopSurfaceBorderSubtle,
+            radius = radius - strokeWidth - 5.dp.toPx(),
             center = centerOffset,
             style = Stroke(width = 1.dp.toPx())
           )
         }
 
-        // Central Score & Units with Medical ECG Sparkline
+        // Central Score & Units with bold athletic display typography
         Column(
           horizontalAlignment = Alignment.CenterHorizontally,
           modifier = Modifier.padding(bottom = 4.dp)
         ) {
           Row(
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 4.dp)
           ) {
             Text(
               text = "${animatedScore.toInt()}",
               style = MaterialTheme.typography.displayLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = ClinicalTextPrimary,
-                fontSize = 46.sp,
-                letterSpacing = (-1.5).sp
+                fontWeight = FontWeight.Black,
+                color = WhoopTextPrimary,
+                fontSize = 54.sp,
+                letterSpacing = (-2).sp
               )
             )
             Text(
-              text = " /100",
-              style = MaterialTheme.typography.titleMedium.copy(
-                color = ClinicalTextMuted,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
+              text = "%",
+              style = MaterialTheme.typography.titleLarge.copy(
+                color = gaugeColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
               ),
-              modifier = Modifier.padding(bottom = 6.dp, start = 2.dp)
+              modifier = Modifier.padding(bottom = 10.dp, start = 3.dp)
             )
           }
 
-          // Mini ECG pulse line canvas
+          // Mini ECG pulse line in accent color
           Canvas(
             modifier = Modifier
-              .width(72.dp)
-              .height(18.dp)
-              .padding(vertical = 2.dp)
+              .width(68.dp)
+              .height(16.dp)
+              .padding(vertical = 1.dp)
           ) {
             val path = Path().apply {
               moveTo(0f, size.height / 2f)
@@ -437,10 +679,10 @@ fun CircularHealthScoreGauge(
           Text(
             text = "EQUILIBRIUM",
             style = MaterialTheme.typography.labelSmall.copy(
-              color = ClinicalTextMuted,
+              color = WhoopTextMuted,
               fontWeight = FontWeight.Bold,
-              fontSize = 9.sp,
-              letterSpacing = 1.5.sp
+              fontSize = 9.5.sp,
+              letterSpacing = 1.8.sp
             )
           )
         }
@@ -448,14 +690,89 @@ fun CircularHealthScoreGauge(
 
       Spacer(modifier = Modifier.height(18.dp))
 
-      // Direct visual connection between score anchor and supporting statement
+      // WHOOP-Style 3-Metric Pillar Strip (Strain / Recovery / Barrier)
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(14.dp))
+          .background(WhoopSurfaceElevated)
+          .border(1.dp, WhoopSurfaceBorderSubtle, RoundedCornerShape(14.dp))
+          .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+          Text(
+            text = "SYSTEM STRAIN",
+            style = MaterialTheme.typography.labelSmall.copy(
+              color = WhoopTextMuted,
+              fontSize = 8.5.sp,
+              fontWeight = FontWeight.Bold,
+              letterSpacing = 0.8.sp
+            )
+          )
+          Text(
+            text = "0.2 / 21.0",
+            style = MaterialTheme.typography.titleSmall.copy(
+              color = WhoopStrainBlue,
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black
+            )
+          )
+        }
+
+        Box(modifier = Modifier.width(1.dp).height(24.dp).background(WhoopSurfaceBorder))
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+          Text(
+            text = "RECOVERY",
+            style = MaterialTheme.typography.labelSmall.copy(
+              color = WhoopTextMuted,
+              fontSize = 8.5.sp,
+              fontWeight = FontWeight.Bold,
+              letterSpacing = 0.8.sp
+            )
+          )
+          Text(
+            text = "${score}%",
+            style = MaterialTheme.typography.titleSmall.copy(
+              color = gaugeColor,
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black
+            )
+          )
+        }
+
+        Box(modifier = Modifier.width(1.dp).height(24.dp).background(WhoopSurfaceBorder))
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+          Text(
+            text = "SANDBOX",
+            style = MaterialTheme.typography.labelSmall.copy(
+              color = WhoopTextMuted,
+              fontSize = 8.5.sp,
+              fontWeight = FontWeight.Bold,
+              letterSpacing = 0.8.sp
+            )
+          )
+          Text(
+            text = "ARMED",
+            style = MaterialTheme.typography.titleSmall.copy(
+              color = WhoopSleepTeal,
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black
+            )
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      // Direct supporting clinical verdict pill
       Surface(
-        color = if (condition == DeviceCondition.HEALTHY) ClinicalGreenLight.copy(alpha = 0.55f) else gaugeColor.copy(alpha = 0.12f),
-        shape = RoundedCornerShape(14.dp),
-        border = BorderStroke(
-          1.dp,
-          if (condition == DeviceCondition.HEALTHY) ClinicalGreenHealthy.copy(alpha = 0.35f) else gaugeColor.copy(alpha = 0.4f)
-        ),
+        color = gaugeColor.copy(alpha = 0.10f),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, gaugeColor.copy(alpha = 0.25f)),
         modifier = Modifier.fillMaxWidth()
       ) {
         Row(
@@ -469,13 +786,13 @@ fun CircularHealthScoreGauge(
             tint = gaugeColor,
             modifier = Modifier.size(17.dp)
           )
-          Spacer(modifier = Modifier.width(9.dp))
+          Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = supportingSentence,
             style = MaterialTheme.typography.bodyMedium.copy(
-              color = ClinicalTextPrimary,
-              fontWeight = FontWeight.SemiBold,
-              fontSize = 13.5.sp,
+              color = WhoopTextPrimary,
+              fontWeight = FontWeight.Medium,
+              fontSize = 13.sp,
               lineHeight = 18.sp
             ),
             textAlign = TextAlign.Center
@@ -495,18 +812,33 @@ fun VitalSignCard(
   modifier: Modifier = Modifier
 ) {
   val pulseAlpha = 0.8f
-  val statusColor = if (vital.isNormal) ClinicalGreenHealthy else ClinicalAmberAttention
+  val statusColor = if (vital.isNormal) WhoopRecoveryGreen else WhoopWarningAmber
 
   Card(
     shape = RoundedCornerShape(18.dp),
-    colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
-    border = BorderStroke(1.dp, ClinicalOutline),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
-    modifier = modifier.fillMaxWidth()
+    colors = CardDefaults.cardColors(containerColor = WhoopSurface),
+    border = BorderStroke(1.dp, Color(0x24FFFFFF)),
+    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    modifier = modifier
+      .fillMaxWidth()
+      .shadow(
+        elevation = 4.dp,
+        shape = RoundedCornerShape(18.dp),
+        ambientColor = Color.Black.copy(alpha = 0.5f),
+        spotColor = Color.Black.copy(alpha = 0.5f)
+      )
   ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color(0xFF191D28),
+              Color(0xFF13151C)
+            )
+          )
+        )
         .padding(16.dp)
     ) {
       Row(
@@ -519,7 +851,7 @@ fun VitalSignCard(
           style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.9.sp,
-            color = ClinicalTextSecondary,
+            color = WhoopTextSecondary,
             fontSize = 11.5.sp
           )
         )
@@ -531,7 +863,7 @@ fun VitalSignCard(
             modifier = Modifier
               .size(12.dp)
               .clip(CircleShape)
-              .background(statusColor.copy(alpha = pulseAlpha * 0.4f))
+              .background(statusColor.copy(alpha = pulseAlpha * 0.35f))
           )
           Box(
             modifier = Modifier
@@ -552,19 +884,20 @@ fun VitalSignCard(
         Text(
           text = vital.status,
           style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Black,
             color = statusColor,
-            fontSize = 15.5.sp
+            fontSize = 16.sp
           )
         )
         Surface(
-          color = ClinicalSurfaceVariant,
+          color = Color(0x331E2330),
+          border = BorderStroke(1.dp, Color(0x20FFFFFF)),
           shape = RoundedCornerShape(6.dp)
         ) {
           Text(
             text = vital.trendLabel,
             style = MaterialTheme.typography.labelSmall.copy(
-              color = ClinicalTextSecondary,
+              color = WhoopTextSecondary,
               fontSize = 10.sp,
               fontWeight = FontWeight.SemiBold
             ),
@@ -578,7 +911,7 @@ fun VitalSignCard(
       Text(
         text = vital.subtitle,
         style = MaterialTheme.typography.bodySmall.copy(
-          color = ClinicalTextSecondary,
+          color = WhoopTextSecondary,
           fontSize = 12.sp,
           lineHeight = 16.sp
         ),
@@ -604,7 +937,12 @@ fun VitalSignCard(
         }
         drawPath(
           path = path,
-          color = statusColor.copy(alpha = 0.5f),
+          color = statusColor.copy(alpha = 0.3f),
+          style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        )
+        drawPath(
+          path = path,
+          color = statusColor.copy(alpha = 0.9f),
           style = Stroke(width = 1.6.dp.toPx(), cap = StrokeCap.Round)
         )
       }
@@ -614,7 +952,7 @@ fun VitalSignCard(
       Text(
         text = "Updated ${vital.updatedAgo}",
         style = MaterialTheme.typography.labelSmall.copy(
-          color = ClinicalTextMuted,
+          color = WhoopTextMuted,
           fontSize = 10.5.sp
         )
       )
@@ -623,7 +961,7 @@ fun VitalSignCard(
 }
 
 /**
- * Clinical summary written with physician-grade calm authority
+ * Clinical summary written with physician-grade calm authority in WHOOP & Apple athletic precision
  */
 @Composable
 fun DoctorClinicalSummarySection(
@@ -633,14 +971,29 @@ fun DoctorClinicalSummarySection(
 ) {
   Card(
     shape = RoundedCornerShape(20.dp),
-    colors = CardDefaults.cardColors(containerColor = MedicalBlueContainer.copy(alpha = 0.7f)),
-    border = BorderStroke(1.dp, MedicalBlueLight),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    modifier = modifier.fillMaxWidth()
+    colors = CardDefaults.cardColors(containerColor = WhoopSurface),
+    border = BorderStroke(1.dp, Color(0x28FFFFFF)),
+    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    modifier = modifier
+      .fillMaxWidth()
+      .shadow(
+        elevation = 6.dp,
+        shape = RoundedCornerShape(20.dp),
+        ambientColor = Color.Black.copy(alpha = 0.6f),
+        spotColor = Color.Black.copy(alpha = 0.6f)
+      )
   ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color(0xFF181C26),
+              Color(0xFF11141A)
+            )
+          )
+        )
         .padding(18.dp)
     ) {
       Row(
@@ -651,33 +1004,34 @@ fun DoctorClinicalSummarySection(
         Row(verticalAlignment = Alignment.CenterVertically) {
           Box(
             modifier = Modifier
-              .size(28.dp)
-              .clip(RoundedCornerShape(8.dp))
-              .background(MedicalBluePrimary),
+              .size(34.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(Color(0x3300B4D8))
+              .border(1.dp, WhoopStrainBlue.copy(alpha = 0.4f), RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center
           ) {
             Icon(
               imageVector = Icons.Default.HealthAndSafety,
               contentDescription = null,
-              tint = Color.White,
-              modifier = Modifier.size(16.dp)
+              tint = WhoopStrainBlue,
+              modifier = Modifier.size(19.dp)
             )
           }
           Spacer(modifier = Modifier.width(10.dp))
           Column {
             Text(
-              text = "CLINICAL SUMMARY",
+              text = "INTELLIGENCE COACHING",
               style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp,
-                color = MedicalBlueDeep,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.2.sp,
+                color = WhoopStrainBlue,
                 fontSize = 11.sp
               )
             )
             Text(
-              text = "Attending Device Physician",
+              text = "Autonomous Defense Advisor",
               style = MaterialTheme.typography.labelSmall.copy(
-                color = ClinicalTextMuted,
+                color = WhoopTextMuted,
                 fontSize = 9.5.sp
               )
             )
@@ -685,14 +1039,14 @@ fun DoctorClinicalSummarySection(
         }
 
         Surface(
-          color = Color.White.copy(alpha = 0.8f),
-          border = BorderStroke(0.8.dp, MedicalBlueLight),
+          color = Color(0x331E2330),
+          border = BorderStroke(1.dp, Color(0x24FFFFFF)),
           shape = RoundedCornerShape(8.dp)
         ) {
           Text(
             text = "Assessed $lastAssessment",
             style = MaterialTheme.typography.labelSmall.copy(
-              color = MedicalBlueDark,
+              color = WhoopTextSecondary,
               fontSize = 10.5.sp,
               fontWeight = FontWeight.Medium
             ),
@@ -701,19 +1055,19 @@ fun DoctorClinicalSummarySection(
         }
       }
 
-      Spacer(modifier = Modifier.height(12.dp))
+      Spacer(modifier = Modifier.height(14.dp))
 
       Text(
         text = "\"$clinicalAssessment\"",
         style = MaterialTheme.typography.bodyMedium.copy(
-          color = ClinicalTextPrimary,
+          color = WhoopTextPrimary,
           lineHeight = 22.sp,
           fontWeight = FontWeight.Normal,
           fontSize = 13.5.sp
         )
       )
 
-      Spacer(modifier = Modifier.height(12.dp))
+      Spacer(modifier = Modifier.height(14.dp))
 
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -724,14 +1078,14 @@ fun DoctorClinicalSummarySection(
           Icon(
             imageVector = Icons.Outlined.Shield,
             contentDescription = null,
-            tint = MedicalBluePrimary,
+            tint = WhoopStrainBlue,
             modifier = Modifier.size(13.dp)
           )
           Spacer(modifier = Modifier.width(4.dp))
           Text(
             text = "Deterministic On-Device Core",
             style = MaterialTheme.typography.labelSmall.copy(
-              color = ClinicalTextSecondary,
+              color = WhoopTextSecondary,
               fontSize = 10.sp,
               fontWeight = FontWeight.Medium
             )
@@ -741,7 +1095,7 @@ fun DoctorClinicalSummarySection(
         Text(
           text = "Zero Cloud Leakage",
           style = MaterialTheme.typography.labelSmall.copy(
-            color = ClinicalGreenHealthy,
+            color = WhoopRecoveryGreen,
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold
           )
@@ -1028,16 +1382,24 @@ fun BiologicalImmuneNetworkCanvas(
 
   Card(
     shape = RoundedCornerShape(24.dp),
-    colors = CardDefaults.cardColors(containerColor = ClinicalSurface),
-    border = BorderStroke(1.dp, ClinicalOutline),
+    colors = CardDefaults.cardColors(containerColor = WhoopSurface),
+    border = BorderStroke(1.dp, Color(0x28FFFFFF)),
     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     modifier = modifier
       .fillMaxWidth()
-      .shadow(4.dp, shape = RoundedCornerShape(24.dp), ambientColor = ClinicalOutline, spotColor = MedicalTealLight.copy(alpha = 0.4f))
+      .shadow(6.dp, shape = RoundedCornerShape(24.dp), ambientColor = Color.Black.copy(alpha = 0.6f), spotColor = Color.Black.copy(alpha = 0.6f))
   ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()
+        .background(
+          Brush.verticalGradient(
+            colors = listOf(
+              Color(0xFF181C26),
+              Color(0xFF11141A)
+            )
+          )
+        )
         .padding(20.dp)
     ) {
       // Header with Live Indicator
@@ -1051,28 +1413,28 @@ fun BiologicalImmuneNetworkCanvas(
             Icon(
               imageVector = Icons.Outlined.Hub,
               contentDescription = null,
-              tint = MedicalBluePrimary,
+              tint = WhoopStrainBlue,
               modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
               text = "IMMUNE TOPOLOGY",
               style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Black,
                 letterSpacing = 1.2.sp,
-                color = ClinicalTextSecondary
+                color = WhoopTextPrimary
               )
             )
           }
           Text(
             text = "Live Biological Agent Network",
-            style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextMuted, fontSize = 11.5.sp)
+            style = MaterialTheme.typography.bodySmall.copy(color = WhoopTextSecondary, fontSize = 11.5.sp)
           )
         }
 
         Surface(
-          color = ClinicalGreenLight,
-          border = BorderStroke(0.8.dp, ClinicalGreenHealthy.copy(alpha = 0.3f)),
+          color = Color(0x2822C55E),
+          border = BorderStroke(1.dp, WhoopRecoveryGreen.copy(alpha = 0.4f)),
           shape = RoundedCornerShape(8.dp)
         ) {
           Row(
@@ -1083,13 +1445,13 @@ fun BiologicalImmuneNetworkCanvas(
               modifier = Modifier
                 .size(6.dp)
                 .clip(CircleShape)
-                .background(ClinicalGreenHealthy)
+                .background(WhoopRecoveryGreen)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
               text = "${cells.size} CELLS ENGAGED",
               style = MaterialTheme.typography.labelSmall.copy(
-                color = ClinicalGreenHealthy,
+                color = WhoopRecoveryGreen,
                 fontSize = 9.5.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.5.sp
@@ -1109,16 +1471,16 @@ fun BiologicalImmuneNetworkCanvas(
         listOf("ALL" to "All Cells", "SENSORY" to "Sensory", "COGNITIVE" to "Cognitive", "DEFENSIVE" to "Defense").forEach { (key, label) ->
           val isSelected = filterCategory == key
           Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = if (isSelected) MedicalBluePrimary else ClinicalSurfaceVariant,
-            border = BorderStroke(1.dp, if (isSelected) MedicalBluePrimary else ClinicalOutlineSoft),
+            shape = RoundedCornerShape(10.dp),
+            color = if (isSelected) WhoopStrainBlue else Color(0x331E2330),
+            border = BorderStroke(1.dp, if (isSelected) WhoopStrainBlueGlow.copy(alpha = 0.6f) else Color(0x20FFFFFF)),
             modifier = Modifier.clickable { filterCategory = key }
           ) {
             Text(
               text = label,
               style = MaterialTheme.typography.labelSmall.copy(
-                color = if (isSelected) Color.White else ClinicalTextSecondary,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = if (isSelected) WhoopBlackBg else WhoopTextSecondary,
+                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
                 fontSize = 10.sp
               ),
               modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
@@ -1259,10 +1621,16 @@ fun BiologicalImmuneNetworkCanvas(
 
             val iconVector = when (cell.name) {
               "SENTINEL" -> Icons.Outlined.Visibility
-              "RECEPTOR" -> Icons.Outlined.Sensors
-              "CONTEXT CELL" -> Icons.Outlined.Psychology
-              "DECISION CELL" -> Icons.Outlined.FactCheck
-              "RESPONSE CELL" -> Icons.Outlined.Shield
+              "PATTERN RECOGNITION (PRR)" -> Icons.Outlined.Sensors
+              "NEUTROPHIL" -> Icons.Outlined.Bolt
+              "MACROPHAGE" -> Icons.Outlined.CleaningServices
+              "DENDRITIC CELL" -> Icons.Outlined.Psychology
+              "NATURAL KILLER CELL" -> Icons.Outlined.Security
+              "T-HELPER CELL" -> Icons.Outlined.FactCheck
+              "B-CELL" -> Icons.Outlined.Fingerprint
+              "CYTOTOXIC CELL" -> Icons.Outlined.Shield
+              "REGULATORY T-CELL" -> Icons.Outlined.Balance
+              "RESOLUTION CELL" -> Icons.Outlined.CheckCircle
               "MEMORY CELL" -> Icons.Outlined.Memory
               else -> Icons.Outlined.Biotech
             }

@@ -4,7 +4,11 @@
 
     <!-- Network-state telemetry only (ConnectivityManager). No sockets opened:
          INTERNET removed during release remediation 2026-09-12 (zero endpoints,
-         see docs/NETWORK_ENDPOINT_INVENTORY.md). Re-add only with a real endpoint. -->
+         see docs/NETWORK_ENDPOINT_INVENTORY.md). Re-add only with a real endpoint.
+         Enforce removal across all merged library manifests (e.g. datatransport). -->
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Package inventory visibility for on-device antivirus inspection.
          V-Watcher inspects installed packages locally without transmitting data. -->

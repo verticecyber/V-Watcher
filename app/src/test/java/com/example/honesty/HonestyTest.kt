@@ -83,4 +83,23 @@ class HonestyTest {
       assertEquals("DETERMINISTIC", state.actualBackendUsed)
     }
   }
+
+  @Test
+  fun manifest_strictlyExcludesInternetPermission() {
+    val pm = context.packageManager
+    val packageInfo = pm.getPackageInfo(context.packageName, android.content.pm.PackageManager.GET_PERMISSIONS)
+    val requestedPermissions = packageInfo.requestedPermissions ?: emptyArray()
+    assertFalse(
+      "Zero-Cloud contract: INTERNET permission must never be requested in AndroidManifest.xml",
+      requestedPermissions.contains("android.permission.INTERNET")
+    )
+  }
+
+  @Test
+  fun killExternalProcess_honestlyReturnsUnavailable() {
+    val boundary = AndroidRealityBoundary(context)
+    val result = boundary.executeRealAction("KILL_EXTERNAL_PROCESS", "incident_kill", mapOf("package" to "com.other.app"))
+    assertEquals(ActionExecutionStatus.UNAVAILABLE, result.status)
+    assertTrue(result.platformReason.contains("sandbox prevents third-party applications"))
+  }
 }

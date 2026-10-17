@@ -51,11 +51,11 @@ fun MemoryScreen(
   Column(
     modifier = modifier
       .fillMaxSize()
-      .background(ClinicalBackground)
+      .background(WhoopBlackBg)
   ) {
     // Header
     Surface(
-      color = ClinicalBackground,
+      color = WhoopBlackBg,
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
@@ -66,8 +66,8 @@ fun MemoryScreen(
         Text(
           text = "IMMUNE MEMORY",
           style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.4.sp,
             color = MemoryLavender
           )
         )
@@ -75,13 +75,13 @@ fun MemoryScreen(
         Text(
           text = "Your device remembers.",
           style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Bold,
-            color = ClinicalTextPrimary
+            fontWeight = FontWeight.Black,
+            color = WhoopTextPrimary
           )
         )
         Text(
           text = "Previously observed patterns let V-Watcher short-circuit expensive inference. Match latency is not measured in this build.",
-          style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextSecondary)
+          style = MaterialTheme.typography.bodySmall.copy(color = WhoopTextSecondary)
         )
       }
     }
@@ -173,7 +173,7 @@ fun MemoryScreen(
                 )
               )
               Text(
-                text = "If a known pattern appears again, it is recognized from the local repository instead of re-running inference. No latency benefit has been measured.",
+                text = "Session-scoped RAM repository: Known patterns short-circuit inference during the active session. Patterns reset upon process restart as no disk persistence is configured.",
                 style = MaterialTheme.typography.bodySmall.copy(
                   color = ClinicalTextPrimary,
                   fontSize = 12.sp

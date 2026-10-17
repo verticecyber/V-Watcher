@@ -4,6 +4,7 @@ import com.example.immune.HomeostaticMacroState
 import com.example.model.CaseStatus
 import com.example.model.ExamCategory
 import com.example.model.IncidentCase
+import com.example.reasoning.ModelReadiness
 import com.example.ui.screens.bindExamCategories
 import com.example.ui.screens.deviceDataBadgeVisible
 import com.example.ui.screens.examConditionLabel
@@ -11,6 +12,8 @@ import com.example.ui.screens.homeostasisConfidenceDisplay
 import com.example.ui.screens.homeostasisReasonDisplay
 import com.example.ui.screens.isolatedCaseCount
 import com.example.ui.screens.macroStateDisplayName
+import com.example.ui.screens.modelReadinessDisplayName
+import com.example.ui.screens.modelReadinessIsReady
 import com.example.ui.screens.sentinelRunningLabel
 import com.example.ui.screens.uncontainedCaseCount
 import androidx.compose.material3.Text
@@ -46,6 +49,23 @@ class UiBindingTest {
   fun banner_gatedOnObservation() {
     assertFalse(deviceDataBadgeVisible(false))
     assertTrue(deviceDataBadgeVisible(true))
+  }
+
+  @Test
+  fun modelReadiness_accurateStatusAndNoFabrication() {
+    assertEquals("DETERMINISTIC MODE", modelReadinessDisplayName(null, null))
+    assertEquals("DETERMINISTIC MODE", modelReadinessDisplayName(ModelReadiness.UNAVAILABLE, null))
+    assertEquals("EVALUATING RUNTIME", modelReadinessDisplayName(ModelReadiness.PREPARING, null))
+    assertEquals("FALLBACK MODE", modelReadinessDisplayName(ModelReadiness.ERROR, null))
+    assertEquals("AICORE READY", modelReadinessDisplayName(ModelReadiness.READY, "GEMINI_NANO"))
+    assertEquals("GEMMA READY", modelReadinessDisplayName(ModelReadiness.READY, "GEMMA"))
+    assertEquals("LOCAL NEURAL READY", modelReadinessDisplayName(ModelReadiness.READY, "OTHER"))
+
+    assertFalse(modelReadinessIsReady(null))
+    assertFalse(modelReadinessIsReady(ModelReadiness.UNAVAILABLE))
+    assertFalse(modelReadinessIsReady(ModelReadiness.PREPARING))
+    assertFalse(modelReadinessIsReady(ModelReadiness.ERROR))
+    assertTrue(modelReadinessIsReady(ModelReadiness.READY))
   }
 
   private fun kase(id: String, status: CaseStatus) = IncidentCase(

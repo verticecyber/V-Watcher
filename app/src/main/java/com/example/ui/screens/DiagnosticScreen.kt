@@ -52,31 +52,31 @@ fun DiagnosticScreen(
             Text(
               text = "TECHNICAL DIAGNOSTICS",
               style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Black,
                 letterSpacing = 1.2.sp,
-                color = ClinicalTextPrimary
+                color = WhoopTextPrimary
               )
             )
             Text(
               text = "Canonical Substrates & Runtime Reality",
-              style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextSecondary, fontSize = 11.sp)
+              style = MaterialTheme.typography.bodySmall.copy(color = WhoopTextSecondary, fontSize = 11.sp)
             )
           }
         },
         navigationIcon = {
           IconButton(onClick = onBack, modifier = Modifier.testTag("diagnostic_back_button")) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = ClinicalTextPrimary)
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = WhoopTextPrimary)
           }
         },
         actions = {
           IconButton(onClick = onRefreshTelemetry, modifier = Modifier.testTag("diagnostic_refresh_button")) {
-            Icon(Icons.Outlined.Refresh, contentDescription = "Refresh Telemetry", tint = MedicalBluePrimary)
+            Icon(Icons.Outlined.Refresh, contentDescription = "Refresh Telemetry", tint = WhoopStrainBlue)
           }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = ClinicalSurface)
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = WhoopBlackBg)
       )
     },
-    containerColor = ClinicalBackground,
+    containerColor = WhoopBlackBg,
     modifier = modifier.fillMaxSize()
   ) { padding ->
     LazyColumn(

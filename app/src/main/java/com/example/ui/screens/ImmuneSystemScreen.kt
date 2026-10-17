@@ -43,11 +43,11 @@ fun ImmuneSystemScreen(
   Column(
     modifier = modifier
       .fillMaxSize()
-      .background(ClinicalBackground)
+      .background(WhoopBlackBg)
   ) {
     // Header
     Surface(
-      color = ClinicalBackground,
+      color = WhoopBlackBg,
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
@@ -58,22 +58,22 @@ fun ImmuneSystemScreen(
         Text(
           text = "INTERNAL ARCHITECTURE",
           style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
-            color = MedicalBluePrimary
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.4.sp,
+            color = WhoopStrainBlue
           )
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
           text = "Immune System",
           style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Bold,
-            color = ClinicalTextPrimary
+            fontWeight = FontWeight.Black,
+            color = WhoopTextPrimary
           )
         )
         Text(
           text = "Autonomous biological defense architecture operating locally on device",
-          style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextSecondary)
+          style = MaterialTheme.typography.bodySmall.copy(color = WhoopTextSecondary)
         )
       }
     }

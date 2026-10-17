@@ -51,11 +51,11 @@ fun CasesScreen(
   Column(
     modifier = modifier
       .fillMaxSize()
-      .background(ClinicalBackground)
+      .background(WhoopBlackBg)
   ) {
     // Screen Title Bar
     Surface(
-      color = ClinicalBackground,
+      color = WhoopBlackBg,
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
@@ -64,24 +64,24 @@ fun CasesScreen(
           .padding(horizontal = 20.dp, vertical = 14.dp)
       ) {
         Text(
-          text = "CLINICAL INCIDENTS",
+          text = "AUDIT & CASE HISTORY",
           style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
-            color = MedicalBluePrimary
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.4.sp,
+            color = WhoopWarningAmber
           )
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
           text = "Cases & Timeline",
           style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Bold,
-            color = ClinicalTextPrimary
+            fontWeight = FontWeight.Black,
+            color = WhoopTextPrimary
           )
         )
         Text(
           text = "Each security observation is managed as a transparent clinical patient case",
-          style = MaterialTheme.typography.bodySmall.copy(color = ClinicalTextSecondary)
+          style = MaterialTheme.typography.bodySmall.copy(color = WhoopTextSecondary)
         )
       }
     }

@@ -112,17 +112,22 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
   // -------------------------------------------------------------
   fun refreshRealTelemetry() {
     viewModelScope.launch {
-      val canonical = sentinel.observeNow()
-      reasoningEngine.communicationChannel.dispatchTelemetry(canonical)
+      performRealTelemetryRefresh()
+    }
+  }
 
-      val snapshot = DeviceTelemetrySnapshot(
-        battery = canonical.battery,
-        resources = canonical.resources,
-        network = canonical.network,
-        appInventory = canonical.inventory,
-        appUsage = canonical.usage,
-        systemState = canonical.system
-      )
+  suspend fun performRealTelemetryRefresh() {
+    val canonical = sentinel.observeNow()
+    reasoningEngine.communicationChannel.dispatchTelemetry(canonical)
+
+    val snapshot = DeviceTelemetrySnapshot(
+      battery = canonical.battery,
+      resources = canonical.resources,
+      network = canonical.network,
+      appInventory = canonical.inventory,
+      appUsage = canonical.usage,
+      systemState = canonical.system
+    )
       baselineEngine.establishInitialBaseline(snapshot)
 
       val candidates = baselineEngine.evaluateSnapshot(snapshot)
@@ -401,7 +406,6 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         )
       }
     }
-  }
 
   // -------------------------------------------------------------
   // RUN DEVICE CHECK (Clinical examination sequence with live data)
@@ -415,38 +419,45 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
           it.copy(
             isExamInProgress = true,
             currentExamStep = ExamSequenceStep.CHECKING_APPLICATIONS,
-            examProgressFloat = 0.16f
+            examProgressFloat = 0.14f
           )
         }
-        delay(400)
+        delay(350)
         _uiState.update {
           it.copy(
             currentExamStep = ExamSequenceStep.CHECKING_PERMISSIONS,
-            examProgressFloat = 0.33f
+            examProgressFloat = 0.28f
           )
         }
-        delay(400)
+        delay(350)
         _uiState.update {
           it.copy(
             currentExamStep = ExamSequenceStep.CHECKING_NETWORK,
-            examProgressFloat = 0.50f
+            examProgressFloat = 0.42f
           )
         }
-        delay(400)
+        delay(350)
         _uiState.update {
           it.copy(
             currentExamStep = ExamSequenceStep.CHECKING_SYSTEM,
-            examProgressFloat = 0.67f
+            examProgressFloat = 0.57f
           )
         }
-        delay(400)
+        delay(350)
         _uiState.update {
           it.copy(
             currentExamStep = ExamSequenceStep.CHECKING_BEHAVIOR,
-            examProgressFloat = 0.84f
+            examProgressFloat = 0.71f
           )
         }
-        delay(400)
+        delay(350)
+        _uiState.update {
+          it.copy(
+            currentExamStep = ExamSequenceStep.CHECKING_RESOURCES,
+            examProgressFloat = 0.85f
+          )
+        }
+        delay(350)
         _uiState.update {
           it.copy(
             currentExamStep = ExamSequenceStep.CHECKING_IMMUNE_MEMORY,
@@ -456,33 +467,17 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         delay(300)
 
         // Refresh real telemetry during final examination check
-        val canonical = try {
-          sentinel.observeNow()
-        } catch (_: Exception) {
-          null
-        }
-
-        if (canonical != null) {
-          try {
-            reasoningEngine.communicationChannel.dispatchTelemetry(canonical)
-          } catch (_: Exception) {}
-        }
-        val totalApps = canonical?.inventory?.value?.totalAppsCount ?: _uiState.value.applications.size
-        val battLevel = canonical?.battery?.value?.levelPercent ?: 88
-        val netTransport = canonical?.network?.value?.transportType ?: "Validated"
+        performRealTelemetryRefresh()
 
         _uiState.update { current ->
-          val openCases = current.cases.count { it.status != CaseStatus.RESOLVED }
-          val isolatedApps = current.applications.count { it.healthState == AppHealthState.ISOLATED }
-          val score = if (openCases > 0 || isolatedApps > 0) {
-            (89 - (openCases * 5) - (isolatedApps * 4)).coerceIn(50, 89)
-          } else {
-            97
-          }
+          val totalApps = current.realAppsCount
+          val battLevel = current.deviceState?.battery?.value?.levelPercent ?: 88
+          val netTransport = current.deviceState?.network?.value?.transportType ?: "Validated"
+          val score = current.healthScore
           current.copy(
+            isExamInProgress = true,
             currentExamStep = ExamSequenceStep.EXAMINATION_COMPLETE,
             examProgressFloat = 1.0f,
-            healthScore = score,
             lastAssessmentTime = "Just now",
             doctorClinicalNote = "Clinical examination complete. Live telemetry sampled ($totalApps apps, Battery: $battLevel%, Network: $netTransport). Open flags, if any, are listed under Cases.",
             supportingSummary = "Routine check completed on sampled on-device telemetry.",
@@ -527,7 +522,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
               activity = "[SIMULATION] Observing uncharacteristic background telemetry",
               lastAction = "Flagged anomalous packet burst"
             )
-            "RECEPTOR" -> cell.copy(
+            "PATTERN RECOGNITION" -> cell.copy(
               state = ImmuneCellState.ACTIVE,
               activity = "[SIMULATION] Intercepted unexpected external socket signal",
               lastAction = "Captured inbound connection handshake"
@@ -539,7 +534,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
           isSimulationActive = true,
           simulationPhase = "OBSERVED",
           simulationStepIndex = 1,
-          simulationCurrentStepText = "[SIMULATION] Observed: Sentinel & Receptor detect unexpected socket burst from Background Updater",
+          simulationCurrentStepText = "[SIMULATION] Observed: Sentinel & Pattern Recognition detect unexpected socket burst from Background Updater",
           healthScore = 91,
           condition = DeviceCondition.ATTENTION,
           barrierState = BarrierState.WATCHING,
@@ -550,11 +545,16 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
       }
       delay(1800)
 
-      // 2. INVESTIGATING (Context Cell cross-references baseline)
+      // 2. INVESTIGATING (Dendritic & T-Helper cross-reference baseline)
       _uiState.update { current ->
         val updatedCells = current.immuneCells.map { cell ->
           when (cell.name) {
-            "CONTEXT CELL" -> cell.copy(
+            "DENDRITIC CELL" -> cell.copy(
+              state = ImmuneCellState.INVESTIGATING,
+              activity = "[SIMULATION] Presenting anomaly context to T-Helper",
+              lastAction = "Antigen context presented"
+            )
+            "T-HELPER" -> cell.copy(
               state = ImmuneCellState.INVESTIGATING,
               activity = "[SIMULATION] Correlating connection frequency with temporal baseline",
               lastAction = "Detected divergence: 18 connections / 4s"
@@ -565,7 +565,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         current.copy(
           simulationPhase = "INVESTIGATING",
           simulationStepIndex = 2,
-          simulationCurrentStepText = "[SIMULATION] Investigating: Context Cell cross-references historical baseline (84% divergence)",
+          simulationCurrentStepText = "[SIMULATION] Investigating: Dendritic Cell & T-Helper cross-reference historical baseline (84% divergence)",
           doctorClinicalNote = "[SIMULATION] I'm comparing this socket burst against 60-day baseline data. The connection endpoint was never seen before.",
           supportingSummary = "[SIMULATION] Investigating divergent behavioral pattern.",
           immuneCells = updatedCells
@@ -573,14 +573,19 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
       }
       delay(1600)
 
-      // 3. ASSESSING (Decision Cell evaluates risk threshold)
+      // 3. ASSESSING (Regulatory T-Cell evaluates risk threshold)
       _uiState.update { current ->
         val updatedCells = current.immuneCells.map { cell ->
           when (cell.name) {
-            "DECISION CELL" -> cell.copy(
+            "REGULATORY T-CELL" -> cell.copy(
               state = ImmuneCellState.ASSESSING,
               activity = "[SIMULATION] Formulating containment threshold (Confidence: 92%)",
               lastAction = "Authorized biological isolation"
+            )
+            "B-CELL" -> cell.copy(
+              state = ImmuneCellState.ASSESSING,
+              activity = "[SIMULATION] Cross-referencing antibody memory repository",
+              lastAction = "Zero known antibody match for socket pattern"
             )
             else -> cell
           }
@@ -588,8 +593,8 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         current.copy(
           simulationPhase = "ASSESSING",
           simulationStepIndex = 3,
-          simulationCurrentStepText = "[SIMULATION] Assessing: Decision Cell verified anomaly (92% confidence); recommending containment",
-          doctorClinicalNote = "[SIMULATION] Decision cell verified anomaly with 92% confidence. Authorizing protective containment.",
+          simulationCurrentStepText = "[SIMULATION] Assessing: Regulatory T-Cell verified anomaly (92% confidence); recommending containment",
+          doctorClinicalNote = "[SIMULATION] Regulatory T-cell verified anomaly with 92% confidence. Authorizing protective containment.",
           supportingSummary = "[SIMULATION] Evaluating clinical containment parameters.",
           immuneCells = updatedCells
         )
@@ -635,11 +640,23 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
       _uiState.update { current ->
         val updatedCells = current.immuneCells.map { cell ->
           when (cell.name) {
-            "RESPONSE CELL" -> cell.copy(
+            "NEUTROPHIL" -> cell.copy(
               state = ImmuneCellState.CONTAINING,
               activity = "[SIMULATION] Active containment of Background Updater",
               eventsHandled = cell.eventsHandled + 1,
               lastAction = "Isolated process and suspended socket"
+            )
+            "MACROPHAGE" -> cell.copy(
+              state = ImmuneCellState.CONTAINING,
+              activity = "[SIMULATION] Engulfing anomalous socket telemetry stream",
+              eventsHandled = cell.eventsHandled + 1,
+              lastAction = "Telemetry stream quarantined"
+            )
+            "CYTOTOXIC EFFECTOR" -> cell.copy(
+              state = ImmuneCellState.CONTAINING,
+              activity = "[SIMULATION] Enforcing process boundary confinement",
+              eventsHandled = cell.eventsHandled + 1,
+              lastAction = "Confinement perimeter locked"
             )
             else -> cell
           }
@@ -647,7 +664,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         current.copy(
           simulationPhase = "CONTAINING",
           simulationStepIndex = 4,
-          simulationCurrentStepText = "[SIMULATION] Containing: Response Cell isolated application; Protective Barrier engaged",
+          simulationCurrentStepText = "[SIMULATION] Containing: Cytotoxic Effector & Neutrophil isolated application; Protective Barrier engaged",
           applications = updatedApps,
           cases = listOf(newCase) + current.cases,
           immuneCells = updatedCells,
@@ -680,7 +697,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         }
         val updatedCells = current.immuneCells.map { cell ->
           when (cell.name) {
-            "RESPONSE CELL" -> cell.copy(
+            "RESOLUTION" -> cell.copy(
               state = ImmuneCellState.RECOVERING,
               activity = "[SIMULATION] Verifying sandbox stability",
               lastAction = "Assessed safe process containment"
@@ -742,7 +759,7 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
           cell.copy(
             state = ImmuneCellState.MONITORING,
             activity = "Monitoring baseline parameters",
-            lastAction = if (cell.name == "MEMORY CELL") "Synthesized MEM-0043" else cell.lastAction
+            lastAction = if (cell.name == "MEMORY") "Synthesized MEM-0043" else cell.lastAction
           )
         }
         current.copy(
@@ -1004,6 +1021,15 @@ class VWatcherViewModel(application: Application) : AndroidViewModel(application
         detailCountText = "0 behavioral flags",
         isHealthy = true,
         notes = "Temporal pattern consistent with user profile."
+      ),
+      ExamCategory(
+        id = "ec_resources",
+        name = "RESOURCES & THERMAL",
+        status = "Healthy",
+        summary = "RAM allocation and thermal baseline within normal envelope",
+        detailCountText = "Memory pressure nominal",
+        isHealthy = true,
+        notes = "Live hardware observation of physical RAM and battery temperature."
       ),
       ExamCategory(
         id = "ec_immune",
